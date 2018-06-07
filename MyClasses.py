@@ -39,32 +39,6 @@ class BusStation():
     def setBum(self):
         self.Bums += 1
 
-class Old_Button():
-    #Уже не нужно, старая кнопка
-    def __init__(self, name, win_size, order):
-        self.size_x = 200
-        self.size_y = 30
-        self.x = win_size[0] - 200 - 10
-        self.y = order * 35 + 5
-        self.color = [180, 180, 255]
-        self.name = name
-
-    def draw (self, screen, font):
-
-        pygame.draw.rect(screen, self.color, (self.x,self.y,self.size_x,self.size_y),0)
-
-        text = font.render(self.name, True, [0,0,0])
-        screen.blit(text, (self.x + (self.size_x/2 - text.get_width()/2), self.y +(self.size_y/2 - text.get_height()/2)))
-
-    def IsOn (self, mouse_pos):
-        if (self.x < mouse_pos[0] < self.x + self.size_x) :
-            if (self.y < mouse_pos[1] < self.y + self.size_y):
-                self.color = [255,180,180]
-                return True
-
-        self.color = [180, 180, 255]
-        return False
-
 class Interface_Pane():
 #Возвращает область выбранной панели [[x1,y1],[x2,y2]]
     def __init__(self, win_size):
@@ -154,8 +128,8 @@ class Button(Interface_Pane):
             gap_x = 0
             gap_y = 0
             pane = super(Button, self).head()
-            self.pos_x =
-            self.pos_y = 
+            self.pos_x = pane [1][0] - self.wight
+            self.pos_y = pane [0][1]
         if type == 'menu_shop':
             pass
         if type == 'menu_main':
