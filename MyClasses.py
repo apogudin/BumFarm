@@ -154,7 +154,8 @@ class Button(Interface_Pane):
             gap_x = 0
             gap_y = 0
             pane = super(Button, self).head()
-
+            self.pos_x =
+            self.pos_y = 
         if type == 'menu_shop':
             pass
         if type == 'menu_main':
