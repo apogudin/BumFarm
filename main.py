@@ -33,7 +33,7 @@ font = pygame.font.SysFont('Colibri', 25)
 done = False
 
 #Button_Quit = Old_Button('Выйти', win_size, 0)
-#Button_Buy_Bum = Old_Button('Купить бомжа', win_size, 2)
+#Button_Buy_Bum = Old_Button('Купить бомжа', win_size, 2)1
 #Button_Buy_Station = Old_Button('Купить остановку', win_size, 4)
 #Button_Bum_Station = Old_Button('Посадить бомжа', win_size, 5)
 
