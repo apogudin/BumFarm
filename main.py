@@ -2,8 +2,7 @@ import pygame
 import os, sys
 from MyClasses import *
 from MyFunctions import *
-global win_size
-
+from Global import *
 
 pygame.init()
 
@@ -18,10 +17,7 @@ Image_Null1 = pygame.image.load(os.path.join('images', 'Color1.png'))
 Image_Null2 = pygame.image.load(os.path.join('images', 'Color2.png'))
 Image_Null3 = pygame.image.load(os.path.join('images', 'Color3.png'))
 
-screen_x = 1024
-screen_y = 768
 
-win_size = [screen_x, screen_y]
 
 screen = pygame.display.set_mode(win_size)
 pygame.display.set_caption('Бомжеферма')
@@ -29,6 +25,7 @@ pygame.display.set_icon(Image_Bum)
 
 Time1sec = pygame.USEREVENT+1
 Alert_Event = pygame.USEREVENT+2
+
 pygame.time.set_timer(Time1sec, 1000)
 
 alert = ''
@@ -36,15 +33,15 @@ font = pygame.font.SysFont('Colibri', 25)
 done = False
 
 
-Button_Buy_Bum = Button('Купить бомжа','shop',[0,0],Image_Null3,Image_Null2,win_size)
-Button_Buy_Station = Button('ОСТАНОВКА','shop',[1,0],Image_Null3,Image_Null2,win_size)
-TEST_BUTTON20 = Button('TEST20','shop',[2,0],Image_Null3,Image_Null2,win_size)
-Button_Bum_Station = Button('Поселить бомжа','shop',[0,1],Image_Null3,Image_Null2,win_size)
-Button_Menu = Button('Menu','menu',[0,0],Image_Null3,Image_Null2,win_size)
-Button_Quit = Button('ВЫЙТИ','shop',[2,1],Image_Null3,Image_Null2,win_size)
+Button_Buy_Bum = Button('Купить бомжа','shop',[0,0],Image_Null3,Image_Null2)
+Button_Buy_Station = Button('ОСТАНОВКА','shop',[1,0],Image_Null3,Image_Null2)
+TEST_BUTTON20 = Button('TEST20','shop',[2,0],Image_Null3,Image_Null2)
+Button_Bum_Station = Button('Поселить бомжа','shop',[0,1],Image_Null3,Image_Null2)
+Button_Menu = Button('Menu','menu',[0,0],Image_Null3,Image_Null2)
+Button_Quit = Button('ВЫЙТИ','shop',[2,1],Image_Null3,Image_Null2)
 
 
-Panes = Interface_Pane(win_size)
+Panes = Interface_Pane()
 
 menu_type = 1
 while done == False:
@@ -123,7 +120,7 @@ while done == False:
     Text_Resourses('Всего остановок', Station.amount, 10, font, screen, 25, 3)
     Text_Resourses('Мест в останвках', Station.limit-Station.Bums, 10, font, screen, 25, 4)
 
-    Text_Alert(alert, 25, screen_y, font, screen)
+    Text_Alert(alert, 25, win_size[1], font, screen)
 
     pygame.display.flip()
 

@@ -1,6 +1,9 @@
 import pygame
 import math
 from MyFunctions import *
+from Global import *
+
+
 class Bum():
     #Все существующие бомжи#
     def __init__(self):
@@ -41,7 +44,7 @@ class BusStation():
 
 class Interface_Pane():
 #Возвращает область выбранной панели [[x1,y1],[x2,y2]]
-    def __init__(self, win_size):
+    def __init__(self):
         self.screen_x = win_size[0]
         self.screen_y = win_size[1]
         self.head_h = 25
@@ -76,8 +79,8 @@ class Interface_Pane():
 
 class Button(Interface_Pane):
     #Кнопки с любыми шрифтами, размерами, положением. Grid_place - с нуля.
-    def __init__(self, name, type, grid_place, bg, bg_on, win_size):
-        super().__init__(win_size)
+    def __init__(self, name, type, grid_place, bg, bg_on):
+        super().__init__()
         self.name = name
         self.bg = bg
         self.bg_draw = bg
