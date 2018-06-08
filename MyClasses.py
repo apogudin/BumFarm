@@ -79,8 +79,9 @@ class Interface_Pane():
 
 class Button(Interface_Pane):
     #Кнопки с любыми шрифтами, размерами, положением. Grid_place - с нуля.
-    def __init__(self, name, type, grid_place, bg, bg_on):
+    def __init__(self, name, type, grid_place, bg, bg_on, object_function):
         super().__init__()
+        self.act = object_function
         self.name = name
         self.bg = bg
         self.bg_draw = bg
@@ -155,3 +156,6 @@ class Button(Interface_Pane):
                 return True
         self.bg_draw = self.bg
         return False
+
+    def Action (self):
+        self.act()

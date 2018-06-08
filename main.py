@@ -33,12 +33,12 @@ font = pygame.font.SysFont('Colibri', 25)
 done = False
 
 
-Button_Buy_Bum = Button('Купить бомжа','shop',[0,0],Image_Null3,Image_Null2)
-Button_Buy_Station = Button('ОСТАНОВКА','shop',[1,0],Image_Null3,Image_Null2)
-TEST_BUTTON20 = Button('TEST20','shop',[2,0],Image_Null3,Image_Null2)
-Button_Bum_Station = Button('Поселить бомжа','shop',[0,1],Image_Null3,Image_Null2)
-Button_Menu = Button('Menu','menu',[0,0],Image_Null3,Image_Null2)
-Button_Quit = Button('ВЫЙТИ','shop',[2,1],Image_Null3,Image_Null2)
+Button_Buy_Bum = Button('Купить бомжа','shop',[0,0],Image_Null3,Image_Null2, Bums.buy)
+Button_Buy_Station = Button('ОСТАНОВКА','shop',[1,0],Image_Null3,Image_Null2, Station.buy)
+TEST_BUTTON20 = Button('TEST20','shop',[2,0],Image_Null3,Image_Null2, Bums.buy)
+Button_Bum_Station = Button('Поселить бомжа','shop',[0,1],Image_Null3,Image_Null2, Station.setBum)
+Button_Menu = Button('Menu','menu',[0,0],Image_Null3,Image_Null2, Bums.buy)
+Button_Quit = Button('ВЫЙТИ','shop',[2,1],Image_Null3,Image_Null2, Bums.buy)
 
 
 Panes = Interface_Pane()
@@ -69,8 +69,9 @@ while done == False:
                 menu_type = 1
                 #menu_type = [type, param]
 
-                Bums.buy()
-                Budget.outgo(Bums.cost)
+                Button_Buy_Bum.Action()
+                #Bums.buy()
+                #Budget.outgo(Bums.cost)
             if Button_Quit.IsOn(mouse_pos):
                 done = True
             if menu_type == 2:
