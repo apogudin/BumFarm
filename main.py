@@ -52,6 +52,7 @@ while done == False:
         mouse_pos = pygame.mouse.get_pos()
 
         if event.type == pygame.MOUSEMOTION:
+
             Button_Buy_Bum.IsOn(mouse_pos)
             Button_Quit.IsOn(mouse_pos)
             Button_Menu.IsOn(mouse_pos)
