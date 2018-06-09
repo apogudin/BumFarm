@@ -3,6 +3,10 @@ import math
 from MyFunctions import *
 from Global import *
 
+BUTTONS_LIST = []
+BUTTON_DICT = {}
+
+
 
 class Bum():
     #Все существующие бомжи#
@@ -79,8 +83,15 @@ class Interface_Pane():
 
 class Button(Interface_Pane):
     #Кнопки с любыми шрифтами, размерами, положением. Grid_place - с нуля.
-    def __init__(self, name, type, grid_place, bg, bg_on, object_function):
+    def __init__(self, name, type, grid_place, bg, bg_on, object_function, item = ''):
         super().__init__()
+        BUTTONS_LIST.append(self)
+
+        if item != '':
+            item = ':'+item
+        group = type + item
+        Append_To_Dict(BUTTON_DICT, group, self)
+
         self.act = object_function
         self.name = name
         self.bg = bg

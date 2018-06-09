@@ -53,3 +53,18 @@ def Img_Fill(bg, area, screen):
                 crop_x = total_x - bg_width*j
 
             screen.blit(bg, [Xi, Yi],(0,0,crop_x,crop_y))
+
+def Append_To_Dict(dict, key, value):
+    if key in dict:
+        dict[key].append(value)
+    else:
+        dict[key] = [value]
+
+def CheckAll (mass, mouse_pos):
+    for button in mass:
+        button.IsOn(mouse_pos)
+def CheckAll_And_Action(mass, mouse_pos):
+    for button in mass:
+        if button.IsOn(mouse_pos):
+            button.Action()
+            break

@@ -52,24 +52,26 @@ while done == False:
         mouse_pos = pygame.mouse.get_pos()
 
         if event.type == pygame.MOUSEMOTION:
-
-            Button_Buy_Bum.IsOn(mouse_pos)
-            Button_Quit.IsOn(mouse_pos)
-            Button_Menu.IsOn(mouse_pos)
-            if menu_type == 2:
-                Button_Buy_Station.IsOn(mouse_pos)
-            if menu_type == 1:
-                Button_Bum_Station.IsOn(mouse_pos)
+            CheckAll(BUTTONS_LIST, mouse_pos)
+            #Button_Buy_Bum.IsOn(mouse_pos)
+            #Button_Quit.IsOn(mouse_pos)
+            #Button_Menu.IsOn(mouse_pos)
+            #if menu_type == 2:
+            #    Button_Buy_Station.IsOn(mouse_pos)
+            #if menu_type == 1:
+            #    Button_Bum_Station.IsOn(mouse_pos)
 
 
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if Button_Menu.IsOn(mouse_pos):
-                menu_type = 2
-            if Button_Buy_Bum.IsOn(mouse_pos):
-                menu_type = 1
+            CheckAll_And_Action(BUTTONS_LIST, mouse_pos)
+
+            #if Button_Menu.IsOn(mouse_pos):
+            #    menu_type = 2
+            #f Button_Buy_Bum.IsOn(mouse_pos):
+            #    menu_type = 1
                 #menu_type = [type, param]
 
-                Button_Buy_Bum.Action()
+            #    Button_Buy_Bum.Action()
                 #Bums.buy()
                 #Budget.outgo(Bums.cost)
             if Button_Quit.IsOn(mouse_pos):
@@ -91,6 +93,8 @@ while done == False:
                         alert = Temporary_Text('Остановок нет', Alert_Event, 5000)
 
 
+            if Button_Quit.IsOn(mouse_pos):
+                done = True
 
         if event.type == Time1sec:
             Budget.income(Bums.amount*10)
@@ -127,3 +131,5 @@ while done == False:
     pygame.display.flip()
 
 pygame.quit()
+print(BUTTONS_LIST)
+print(BUTTON_DICT)
