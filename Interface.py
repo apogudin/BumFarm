@@ -1,50 +1,7 @@
 import pygame
-import math
 from MyFunctions import *
-from Global import *
-
-BUTTONS_LIST = []
-BUTTON_DICT = {}
-
-
-
-class Bum():
-    #Все существующие бомжи#
-    def __init__(self):
-        self.cost = 10          #Цена одного бомжа
-        self.amount = 0         #Количество свободных бомжей
-        self.efficiency = 1     #Эффективность бомжей
-        self.trash = 0          #Счётчик отработанных бомжей
-    def buy(self):
-        self.amount += 1
-    def set(self):
-        self.amount -= 1
-
-class Coins():
-    #Деньги игрока
-    def __init__(self):
-        self.amount = 20
-    def income(self, sum):      #Прибыль
-        self.amount += sum
-    def outgo(self, sum):       #Расход
-        self.amount -= sum
-
-class BusStation():
-    #Ларёк
-    def __init__(self):
-        self.cost = 25
-        self.limit = 0
-        self.level = 1
-        self.Bums = 0
-        self.amount = 0
-    def levelUp():
-        self.levelUp += 1
-        self.limit += 5
-    def buy(self):
-        self.amount += 1
-        self.limit += 5
-    def setBum(self):
-        self.Bums += 1
+from Configs import *
+from Objects import *
 
 class Interface_Pane():
 #Возвращает область выбранной панели [[x1,y1],[x2,y2]]
@@ -85,8 +42,6 @@ class Button(Interface_Pane):
     #Кнопки с любыми шрифтами, размерами, положением. Grid_place - с нуля.
     def __init__(self, name, type, grid_place, bg, bg_on, object_function, item = ''):
         super().__init__()
-        BUTTONS_LIST.append(self)
-
         if item != '':
             item = ':'+item
         group = type + item

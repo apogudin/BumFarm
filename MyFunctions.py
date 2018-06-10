@@ -1,5 +1,5 @@
-import pygame
 import math
+
 def YouBum(have, need):
     #Проверка: достаточно ли денег
     if have.amount >= need.cost:
@@ -60,6 +60,23 @@ def Append_To_Dict(dict, key, value):
     else:
         dict[key] = [value]
 
+
+
+
+def CheckAll (group_list, dict, mouse_pos):
+    for group in group_list:
+        if group in dict:
+            for button in dict[group]:
+                button.IsOn(mouse_pos)
+def CheckAll_And_Action (group_list, dict, mouse_pos):
+    for group in group_list:
+        if group in dict:
+            for button in dict[group]:
+                if button.IsOn(mouse_pos):
+                    button.Action()
+                    break
+
+'''
 def CheckAll (mass, mouse_pos):
     for button in mass:
         button.IsOn(mouse_pos)
@@ -68,3 +85,4 @@ def CheckAll_And_Action(mass, mouse_pos):
         if button.IsOn(mouse_pos):
             button.Action()
             break
+'''
