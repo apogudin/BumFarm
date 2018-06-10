@@ -1,8 +1,13 @@
 import pygame
 from Var_Init import *
-
+from Interface import *
+from MyFunctions import *
+global a
+a = 10
 while done == False:
     clock.tick(60)
+    #print(a)
+    #print (TEMP_INTERFACE_GROUP)
     INTERFACE_GROUPS = CONS_INTERFACE_GROUP + TEMP_INTERFACE_GROUP
     #ЭВЕНТЫ
     for event in pygame.event.get():
@@ -10,8 +15,10 @@ while done == False:
         if event.type == pygame.MOUSEMOTION:
             CheckAll(INTERFACE_GROUPS, BUTTON_DICT, mouse_pos)
         if event.type == pygame.MOUSEBUTTONDOWN:
-            CheckAll_And_Action(INTERFACE_GROUPS, BUTTON_DICT, mouse_pos)
-
+            out = CheckAll_And_Action(INTERFACE_GROUPS, BUTTON_DICT, mouse_pos)
+            if out is not None:
+                TEMP_INTERFACE_GROUP = [out]
+            
             #Чтоб сейчас хоть как-то по-человечески выходить
             if Button_Quit.IsOn(mouse_pos):
                 done = True
@@ -44,3 +51,4 @@ while done == False:
     pygame.display.flip()
 
 pygame.quit()
+print(BUTTON_DICT)

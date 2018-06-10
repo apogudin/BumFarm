@@ -73,8 +73,8 @@ def CheckAll_And_Action (group_list, dict, mouse_pos):
         if group in dict:
             for button in dict[group]:
                 if button.IsOn(mouse_pos):
-                    button.Action()
-                    break
+                    return button.Activate()
+                    #break
 
 '''
 def CheckAll (mass, mouse_pos):

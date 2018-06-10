@@ -3,7 +3,7 @@ import os
 import sys
 from Interface import *
 from Objects import *
-
+a = 'test'
 pygame.init()
 
 Budget = Coins()
@@ -32,30 +32,32 @@ alert = ''
 font = pygame.font.SysFont('Colibri', 25)
 done = False
 
-
-#Button_Menu = Button('Menu','to_menu_main',[0,0],Image_Null5,Image_Null4, Interface_Pane.set_menu)
-
-#Button_Shop11 = Button('SHOP11','shop',[0,0],Image_Null5,Image_Null4, Interface_Pane.set_menu)
-Button_Shop12 = Button('SHOP12','shop',[1,0],Image_Null5,Image_Null4, Bums.buy)
-Button_Shop13 = Button('SHOP13','shop',[2,0],Image_Null5,Image_Null4, Bums.buy)
-Button_Shop14 = Button('SHOP14','shop',[3,0],Image_Null5,Image_Null4, Bums.buy)
-Button_Shop15 = Button('SHOP15','shop',[4,0],Image_Null5,Image_Null4, Bums.buy)
-Button_Shop21 = Button('SHOP21','shop',[0,1],Image_Null5,Image_Null4, Bums.buy)
-Button_Shop22 = Button('SHOP22','shop',[1,1],Image_Null5,Image_Null4, Bums.buy)
-Button_Shop23 = Button('SHOP23','shop',[2,1],Image_Null5,Image_Null4, Bums.buy)
-Button_Shop24 = Button('SHOP24','shop',[3,1],Image_Null5,Image_Null4, Bums.buy)
-Button_Quit = Button('ВЫХОД','shop',[4,1],Image_Null5,Image_Null4, Bums.buy)
-
-Button_Head1 = Button('h1', 'head',[0,0], Image_Null5, Image_Null4, Bums.buy)
-Button_Head2 = Button('h2', 'head',[1,0], Image_Null5, Image_Null4, Bums.buy)
-Button_Head3 = Button('h3', 'head',[2,0], Image_Null5, Image_Null4, Bums.buy)
-
-Button_Menu_Main1 = Button('main1', 'menu_main',[0,0], Image_Null5, Image_Null4, Bums.buy)
-Button_Menu_Main2 = Button('main2', 'menu_main',[0,1], Image_Null5, Image_Null4, Bums.buy)
-
-Button_Menu_Shop1 = Button('menu_shop1', 'menu_shop',[0,0], Image_Null5, Image_Null4, Bums.buy)
-
-
+Worker = Actor()
 Panes = Interface_Pane()
+Button_Menu = Button('Menu','main',[0,0],Image_Null5,Image_Null4, Worker.switch, Bums)
 
-menu_type = 1
+Button_Shop11 = Button('BUM','shop',[0,0],Image_Null5,Image_Null4, Worker.switch, Bums)
+Button_Shop12 = Button('STATION','shop',[1,0],Image_Null5,Image_Null4, Worker.switch, Station)
+Button_Shop13 = Button('SHOP13','shop',[2,0],Image_Null5,Image_Null4, Worker.switch, Bums)
+Button_Shop14 = Button('SHOP14','shop',[3,0],Image_Null5,Image_Null4, Worker.switch, Bums)
+Button_Shop15 = Button('SHOP15','shop',[4,0],Image_Null5,Image_Null4, Worker.switch, Bums)
+Button_Shop21 = Button('SHOP21','shop',[0,1],Image_Null5,Image_Null4, Worker.switch, Bums)
+Button_Shop22 = Button('SHOP22','shop',[1,1],Image_Null5,Image_Null4, Worker.switch, Bums)
+Button_Shop23 = Button('SHOP23','shop',[2,1],Image_Null5,Image_Null4, Worker.switch, Bums)
+Button_Shop24 = Button('SHOP24','shop',[3,1],Image_Null5,Image_Null4, Worker.switch, Bums)
+Button_Shop25 = Button('SHOP25','shop',[4,1],Image_Null5,Image_Null4, Worker.switch, Bums)
+
+Button_Head1 = Button('h1', 'head',[0,0], Image_Null5, Image_Null4, Worker.switch, Bums)
+Button_Head2 = Button('h2', 'head',[1,0], Image_Null5, Image_Null4, Worker.switch, Bums)
+Button_Head3 = Button('h3', 'head',[2,0], Image_Null5, Image_Null4, Worker.switch, Bums)
+
+Button_Quit = Button('EXIT', 'menu:main',[0,0], Image_Null5, Image_Null4, Worker.nothing)
+Button_Menu_Main2 = Button('MAIN2', 'menu:main',[0,1], Image_Null5, Image_Null4, Worker.buy)
+
+Button_Menu_Shop1 = Button('BUY1', 'menu:shop',[0,0], Image_Null5, Image_Null4, Worker.buy)
+Button_Menu_Shop2 = Button('BUY2', 'menu:shop',[1,0], Image_Null5, Image_Null4, Worker.buy)
+#Button_Buy1 = Button('menu_shop1', 'menu:shop',[0,0], Image_Null5, Image_Null4, Worker.buy)
+
+
+
+#menu_type = 1

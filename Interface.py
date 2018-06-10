@@ -5,7 +5,7 @@ from Objects import *
 
 class Interface_Pane():
     #Возвращает область выбранной панели [[x1,y1],[x2,y2]]
-    def __init__(self, act = ''):
+    def __init__(self):
         self.screen_x = win_size[0]
         self.screen_y = win_size[1]
         self.head_h = 25
@@ -13,7 +13,6 @@ class Interface_Pane():
         self.news_h = 25
         self.alert_h = 100
         self.menu_w = 200
-        self.act = act
 
     #ПАНЕЛЬ РЕСУРСОВ
     def head(self):
@@ -38,17 +37,23 @@ class Interface_Pane():
         alert_top_y = self.alert()[0][1]
         return [[self.screen_x-self.menu_w, self.head_h],[self.screen_x, alert_top_y]]
 
+    def set_menu(self, interface_group):
+        #global TEMP_INTERFACE_GROUP
+        TEMP_INTERFACE_GROUP = [interface_group]
 
+        #a = 333333333333333333333333333333333
+        return interface_group
+        #print(TEMP_INTERFACE_GROUP)
 class Button(Interface_Pane):
     #Кнопки с любыми шрифтами, размерами, положением. Grid_place - с нуля.
-    def __init__(self, name, type, grid_place, bg, bg_on, object_function, item = ''):
+    def __init__(self, name, pane, grid_place, bg, bg_on, worker_act, item = ''):
         super().__init__()
-        if item != '':
-            item = ':'+item
-        group = type + item
-        Append_To_Dict(BUTTON_DICT, group, self)
-
-        self.act = object_function
+        #if item != '':
+        #    item = ':'+item
+        #group = type + item
+        Append_To_Dict(BUTTON_DICT, pane, self)
+        #self.interface_group = interface_group
+        self.worker_act = worker_act
         self.name = name
         self.bg = bg
         self.bg_draw = bg
@@ -56,6 +61,9 @@ class Button(Interface_Pane):
         self.grid_x = grid_place[0]
         self.grid_y = grid_place[1]
         self.hight = 25
+        self.pane = pane
+        self.item = item
+
         gap_x = 10
         gap_y = 10
 
@@ -79,7 +87,7 @@ class Button(Interface_Pane):
             pos_y = Grid[self.grid_y][self.grid_x][1]
             return [pos_x, pos_y]
 
-        if type == 'shop':
+        if pane == 'shop':
             Nx = 5
             Ny = 2
             gap_x = 20
@@ -87,7 +95,7 @@ class Button(Interface_Pane):
             self.width = 125
             self.hight = 60
             self.pos_x, self.pos_y = XY_From_Grid(self.width, self.hight, Nx, Ny, gap_x, gap_y, pane)
-        if type == 'head':
+        if pane == 'head':
             Nx = 4
             Ny = 1
             gap_x = 50
@@ -95,7 +103,7 @@ class Button(Interface_Pane):
             self.width = 50
             self.hight = pane[1][1] - pane[0][1]
             self.pos_x, self.pos_y = XY_From_Grid(self.width, self.hight, Nx, Ny, gap_x, gap_y, pane)
-        if type == 'to_menu_main':
+        if pane == 'main':
             Nx = 1
             Ny = 1
             pane = super(Button, self).head()
@@ -104,13 +112,19 @@ class Button(Interface_Pane):
             self.hight = head_pane[1][1] - head_pane[0][1]
             self.pos_x = pane [1][0] - self.width
             self.pos_y = pane [0][1]
-        if type == 'menu_shop':
-            Nx = 1
+        if pane == 'menu:shop':
+            Nx = 2
             Ny = 1
-            pane = super(Button, self).menu()
-            self.width = (pane[1][0] - pane[0][0]) - gap_x*2
+            self.width = (self.menu_w - (Nx+1)*gap_x)/Nx
+            print(self.menu_w)
+            pane_menu = super(Button, self).menu()
+            pane_alert = super(Button, self).alert()
+
+            pane_menu[0][1] = pane_alert[0][1] - 100
+            pane = [pane_menu[0],pane_menu[1]]
+            print (pane)
             self.pos_x, self.pos_y = XY_From_Grid(self.width, self.hight, Nx, Ny, gap_x, gap_y, pane)
-        if type == 'menu_main':
+        if pane == 'menu:main':
             Nx = 1
             Ny = 3
             pane = super(Button, self).menu()
@@ -132,5 +146,30 @@ class Button(Interface_Pane):
         self.bg_draw = self.bg
         return False
 
-    def Action (self):
-        self.act()
+    '''def Action (self):
+        if self.interface_group:
+            return self.act(self.interface_group)
+        else:
+            self.act()'''
+
+    def Activate(self):
+        return self.worker_act(self)
+
+
+class Actor ():
+    def __init__(self):
+        self.item = 'None'
+        self.interface_group = 'None'
+
+    def switch(self, button):
+        self.interface_group ="menu:" + button.pane
+        self.item = button.item
+        #print(self.interface_group)
+        return self.interface_group
+
+
+    def buy(self, button):
+        self.item.buy()
+
+    def nothing(self, item=''):
+        return
