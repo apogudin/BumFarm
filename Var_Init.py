@@ -16,6 +16,8 @@ Image_Bum = pygame.image.load(os.path.join('images','Bum.png'))
 Image_Null1 = pygame.image.load(os.path.join('images', 'Color1.png'))
 Image_Null2 = pygame.image.load(os.path.join('images', 'Color2.png'))
 Image_Null3 = pygame.image.load(os.path.join('images', 'Color3.png'))
+Image_Null4 = pygame.image.load(os.path.join('images', 'Color4.png'))
+Image_Null5 = pygame.image.load(os.path.join('images', 'Color5.png'))
 
 screen = pygame.display.set_mode(win_size)
 pygame.display.set_caption('Бомжеферма')
@@ -30,12 +32,29 @@ alert = ''
 font = pygame.font.SysFont('Colibri', 25)
 done = False
 
-Button_Buy_Bum = Button('Купить бомжа','shop',[0,0],Image_Null3,Image_Null2, Bums.buy)
-Button_Buy_Station = Button('ОСТАНОВКА','shop',[1,0],Image_Null3,Image_Null2, Station.buy)
-TEST_BUTTON20 = Button('TEST20','shop',[2,0],Image_Null3,Image_Null2, Bums.buy)
-Button_Bum_Station = Button('Поселить бомжа','shop',[0,1],Image_Null3,Image_Null2, Station.setBum)
-Button_Menu = Button('Menu','menu',[0,0],Image_Null3,Image_Null2, Bums.buy)
-Button_Quit = Button('ВЫЙТИ','shop',[2,1],Image_Null3,Image_Null2, Bums.buy)
+
+#Button_Menu = Button('Menu','to_menu_main',[0,0],Image_Null5,Image_Null4, Interface_Pane.set_menu)
+
+#Button_Shop11 = Button('SHOP11','shop',[0,0],Image_Null5,Image_Null4, Interface_Pane.set_menu)
+Button_Shop12 = Button('SHOP12','shop',[1,0],Image_Null5,Image_Null4, Bums.buy)
+Button_Shop13 = Button('SHOP13','shop',[2,0],Image_Null5,Image_Null4, Bums.buy)
+Button_Shop14 = Button('SHOP14','shop',[3,0],Image_Null5,Image_Null4, Bums.buy)
+Button_Shop15 = Button('SHOP15','shop',[4,0],Image_Null5,Image_Null4, Bums.buy)
+Button_Shop21 = Button('SHOP21','shop',[0,1],Image_Null5,Image_Null4, Bums.buy)
+Button_Shop22 = Button('SHOP22','shop',[1,1],Image_Null5,Image_Null4, Bums.buy)
+Button_Shop23 = Button('SHOP23','shop',[2,1],Image_Null5,Image_Null4, Bums.buy)
+Button_Shop24 = Button('SHOP24','shop',[3,1],Image_Null5,Image_Null4, Bums.buy)
+Button_Quit = Button('ВЫХОД','shop',[4,1],Image_Null5,Image_Null4, Bums.buy)
+
+Button_Head1 = Button('h1', 'head',[0,0], Image_Null5, Image_Null4, Bums.buy)
+Button_Head2 = Button('h2', 'head',[1,0], Image_Null5, Image_Null4, Bums.buy)
+Button_Head3 = Button('h3', 'head',[2,0], Image_Null5, Image_Null4, Bums.buy)
+
+Button_Menu_Main1 = Button('main1', 'menu_main',[0,0], Image_Null5, Image_Null4, Bums.buy)
+Button_Menu_Main2 = Button('main2', 'menu_main',[0,1], Image_Null5, Image_Null4, Bums.buy)
+
+Button_Menu_Shop1 = Button('menu_shop1', 'menu_shop',[0,0], Image_Null5, Image_Null4, Bums.buy)
+
 
 Panes = Interface_Pane()
 

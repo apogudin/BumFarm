@@ -3,7 +3,7 @@ from Var_Init import *
 
 while done == False:
     clock.tick(60)
-
+    INTERFACE_GROUPS = CONS_INTERFACE_GROUP + TEMP_INTERFACE_GROUP
     #ЭВЕНТЫ
     for event in pygame.event.get():
         mouse_pos = pygame.mouse.get_pos()
@@ -28,13 +28,12 @@ while done == False:
     Img_Fill(Image_Null1,Panes.head(), screen)
     Img_Fill(Image_Null2,Panes.news(), screen)
     Img_Fill(Image_Null1,Panes.alert(), screen)
-    Img_Fill(Image_Null2,Panes.menu_main(), screen)
+    Img_Fill(Image_Null2,Panes.menu(), screen)
 
-    Button_Menu.draw(screen,font_size=12)
-    Button_Buy_Bum.draw(screen, font_size=12)
-    Button_Quit.draw(screen,font_size=12)
-    Button_Bum_Station.draw(screen,font_size=12)
-    Button_Buy_Station.draw(screen,font_size=12)
+    for group in INTERFACE_GROUPS:
+        if group in BUTTON_DICT:
+            for button in BUTTON_DICT[group]:
+                button.draw(screen)
 
     Text_Resourses('Всего денег', Budget.amount, 10, font, screen, 25, 1)
     Text_Resourses('Всего бомжей', Bums.amount, 10, font, screen, 25, 2)

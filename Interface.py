@@ -4,8 +4,8 @@ from Configs import *
 from Objects import *
 
 class Interface_Pane():
-#Возвращает область выбранной панели [[x1,y1],[x2,y2]]
-    def __init__(self):
+    #Возвращает область выбранной панели [[x1,y1],[x2,y2]]
+    def __init__(self, act = ''):
         self.screen_x = win_size[0]
         self.screen_y = win_size[1]
         self.head_h = 25
@@ -13,30 +13,31 @@ class Interface_Pane():
         self.news_h = 25
         self.alert_h = 100
         self.menu_w = 200
+        self.act = act
 
-    def head(self):                                #ПАНЕЛЬ РЕСУРСОВ
+    #ПАНЕЛЬ РЕСУРСОВ
+    def head(self):
         return [[0,0],[self.screen_x,self.head_h]]
 
-    def shop(self):                                #ПАНЕЛЬ МАГАЗИНА
+    #ПАНЕЛЬ МАГАЗИНА
+    def shop(self):
         return [[0,self.screen_y-self.shop_h],[self.screen_x, self.screen_y]]
 
-    def news(self):                                 #ЛЕНТА НОВОСТЕЙ
+    #ЛЕНТА НОВОСТЕЙ
+    def news(self):
         shop_pos_y = self.shop()[0][1]
         return [[0,shop_pos_y-self.news_h],[self.screen_x,shop_pos_y]]
 
-    def alert(self):                                #ПАНЕЛЬ АЛЕРТОВ
+    #ПАНЕЛЬ АЛЕРТОВ
+    def alert(self):
         news_pos_y = self.news()[0][1]
         return [[self.screen_x - self.menu_w, news_pos_y - self.alert_h],[self.screen_x, news_pos_y]]
 
-    def menu_main(self):                            #МЕНЮШКА СПРАВА
+    #МЕНЮШКА СПРАВА
+    def menu(self):
         alert_top_y = self.alert()[0][1]
         return [[self.screen_x-self.menu_w, self.head_h],[self.screen_x, alert_top_y]]
-    def menu_shop():
-        pass
-    def menu_building():
-        pass
-    def menu_info():
-        pass
+
 
 class Button(Interface_Pane):
     #Кнопки с любыми шрифтами, размерами, положением. Grid_place - с нуля.
@@ -54,62 +55,70 @@ class Button(Interface_Pane):
         self.bg_on = bg_on
         self.grid_x = grid_place[0]
         self.grid_y = grid_place[1]
+        self.hight = 25
+        gap_x = 10
+        gap_y = 10
 
+
+        #Высчитываем [pos_x, pos_y]
         def XY_From_Grid (width, hight, Nx, Ny, gap_x, gap_y, pane):
             #Сколько занимают все кнопки с пробелами
             total_x = width*Nx + gap_x*(Nx-1)
             total_y = hight*Ny + gap_y*(Ny-1)
-
             #width и hight панели
             pane_x =  pane[1][0] - pane[0][0]
             pane_y =  pane[1][1] - pane[0][1]
-
             #Левый верхний угол матрицы
             start_x = pane[0][0] + (pane_x/2 - total_x/2)
             start_y = pane[0][1] + (pane_y/2 - total_y/2)
-
             #Матрица Nx на Ny по центру области win_size,
             #где элементы - [Y][X][x,y] левого верхнего угла распологаемого объекта для позиции X, Y в матрице
             Grid = [[[start_x + i*(width + gap_x),start_y + j*(hight+gap_y)] \
             for i in range(Nx)] for j in range(Ny)]
-
             pos_x = Grid[self.grid_y][self.grid_x][0]
             pos_y = Grid[self.grid_y][self.grid_x][1]
             return [pos_x, pos_y]
 
         if type == 'shop':
-            self.width = 100
-            self.hight = 60
-            Nx = 3
+            Nx = 5
             Ny = 2
             gap_x = 20
-            gap_y = 10
             pane = super(Button, self).shop()  #Внутри какой панели будем строить сетку
+            self.width = 125
+            self.hight = 60
             self.pos_x, self.pos_y = XY_From_Grid(self.width, self.hight, Nx, Ny, gap_x, gap_y, pane)
-
         if type == 'head':
-            pass
-        if type == 'menu':
+            Nx = 4
+            Ny = 1
+            gap_x = 50
+            pane = super(Button,self).head()
+            self.width = 50
+            self.hight = pane[1][1] - pane[0][1]
+            self.pos_x, self.pos_y = XY_From_Grid(self.width, self.hight, Nx, Ny, gap_x, gap_y, pane)
+        if type == 'to_menu_main':
             Nx = 1
             Ny = 1
+            pane = super(Button, self).head()
             self.width = 100
             head_pane = super(Button, self).head()
             self.hight = head_pane[1][1] - head_pane[0][1]
-            gap_x = 0
-            gap_y = 0
-            pane = super(Button, self).head()
             self.pos_x = pane [1][0] - self.width
             self.pos_y = pane [0][1]
         if type == 'menu_shop':
-            pass
+            Nx = 1
+            Ny = 1
+            pane = super(Button, self).menu()
+            self.width = (pane[1][0] - pane[0][0]) - gap_x*2
+            self.pos_x, self.pos_y = XY_From_Grid(self.width, self.hight, Nx, Ny, gap_x, gap_y, pane)
         if type == 'menu_main':
-            pass
+            Nx = 1
+            Ny = 3
+            pane = super(Button, self).menu()
+            self.width = (pane[1][0] - pane[0][0]) - gap_x*2
+            self.pos_x, self.pos_y = XY_From_Grid(self.width, self.hight, Nx, Ny, gap_x, gap_y, pane)
 
 
-
-
-
-    def draw (self, screen, font = 'Colibri',font_size = 25):
+    def draw (self, screen, font = 'Colibri',font_size = 12):
         Font_Text = pygame.font.SysFont(font, font_size)
         Img_Fill(self.bg_draw,[[self.pos_x,self.pos_y],[self.pos_x+self.width, self.pos_y+self.hight]], screen)
         text = Font_Text.render(self.name, True, [0,0,0])
