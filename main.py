@@ -6,9 +6,8 @@ global a
 a = 10
 while done == False:
     clock.tick(60)
-    #print(a)
-    #print (TEMP_INTERFACE_GROUP)
     INTERFACE_GROUPS = CONS_INTERFACE_GROUP + TEMP_INTERFACE_GROUP
+
     #ЭВЕНТЫ
     for event in pygame.event.get():
         mouse_pos = pygame.mouse.get_pos()
@@ -16,9 +15,10 @@ while done == False:
             CheckAll(INTERFACE_GROUPS, BUTTON_DICT, mouse_pos)
         if event.type == pygame.MOUSEBUTTONDOWN:
             out = CheckAll_And_Action(INTERFACE_GROUPS, BUTTON_DICT, mouse_pos)
+
             if out is not None:
                 TEMP_INTERFACE_GROUP = [out]
-            
+
             #Чтоб сейчас хоть как-то по-человечески выходить
             if Button_Quit.IsOn(mouse_pos):
                 done = True
@@ -31,11 +31,11 @@ while done == False:
     #ОТРИСОВКА
     screen.fill([255,255,255])
 
-    Img_Fill(Image_Null1,Panes.shop(), screen)
-    Img_Fill(Image_Null1,Panes.head(), screen)
-    Img_Fill(Image_Null2,Panes.news(), screen)
-    Img_Fill(Image_Null1,Panes.alert(), screen)
-    Img_Fill(Image_Null2,Panes.menu(), screen)
+    Img_Fill(Image_Null1,Pane_Shop.pane, screen)
+    Img_Fill(Image_Null1,Pane_Head.pane, screen)
+    Img_Fill(Image_Null2,Pane_News.pane, screen)
+    Img_Fill(Image_Null1,Pane_Alert.pane, screen)
+    Img_Fill(Image_Null2,Pane_Menu_Main.pane, screen)
 
     for group in INTERFACE_GROUPS:
         if group in BUTTON_DICT:
@@ -51,4 +51,3 @@ while done == False:
     pygame.display.flip()
 
 pygame.quit()
-print(BUTTON_DICT)
