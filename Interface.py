@@ -5,12 +5,12 @@ import sys
 from Objects import *
 from MyFunctions import *
 from Configs import *
-
+import copy
 
 class Pane():
     def __init__(self, type):
         #для выбранного type высчитывает область: левый-верхний, правый-нижний угол
-        PANES_LIST.append(self)
+        PANE_LIST.append(self)
         self.screen_x = win_size[0]
         self.screen_y = win_size[1]
         self.pane_type = type
@@ -29,17 +29,26 @@ class Pane():
         pane_menu = [[self.screen_x-self.menu_w, self.head_h],[self.screen_x, pane_alert[0][1]]]
 
         if self.pane_type ==  'head':
+            PANE_LIST_DRAW.append(self)
             self.pane = pane_head
         if self.pane_type ==  'shop':
+            PANE_LIST_DRAW.append(self)
             self.pane = pane_shop
         if self.pane_type ==  'news':
+            PANE_LIST_DRAW.append(self)
             self.pane = pane_news
         if self.pane_type ==  'alert':
+            PANE_LIST_DRAW.append(self)
             self.pane = pane_alert
-        if self.pane_type ==  'menu:shop' or self.pane_type ==  'menu:main' :
+        if self.pane_type ==  'menu:shop':
+            self.pane = pane_menu
+        if self.pane_type ==  'menu:main':
+            PANE_LIST_DRAW.append(self)
             self.pane = pane_menu
         if self.pane_type ==  'main':
             self.pane = pane_head
+
+        print(self.pane_type, self.pane, sep = ' ')
 
     def Button_Init(self, button_list):
         #записывает в кнопки их координаты
@@ -49,7 +58,6 @@ class Pane():
         Nbutton = len(button_list)
         gap_x = 10
         gap_y = 10
-
         #Строит матрицу для кнопок, возвращает [pos_x, pos_y]
         def Grid (width, height, Nx, Ny, gap_x, gap_y, pane):
             total_x = width*Nx + gap_x*(Nx-1)
@@ -81,19 +89,20 @@ class Pane():
             Nx, Ny = NxNy(Nbutton)
             gap_x = 50
             self.width = 50
-            self.height = self.pane[1][1] - self.pane[0][1]
+            self.height = self.grid_area[1][1] - self.grid_area[0][1]
         if self.pane_type == 'menu:shop':
             Nx, Ny = NxNy(Nbutton)
             self.width = (self.menu_w - (Nx+1)*gap_x)/Nx
             self.grid_area[0][1] = self.grid_area[1][1]-100
         if self.pane_type == 'menu:main':
             Ny, Nx = NxNy(Nbutton)
-            self.width = (self.pane[1][0] - self.pane[0][0]) - gap_x*2
+            self.width = (self.grid_area[1][0] - self.grid_area[0][0]) - gap_x*2
         if self.pane_type == 'main':
             Nx, Ny = NxNy(Nbutton)
             gap_x, gap_y = 0, 0
             self.width = 100
-            self.pane[0][0] = self.pane[1][0] - self.width
+            self.grid_area[0][0] = self.grid_area[1][0] - self.width
+
 
         #Записываем в кнопки их координаты
         grid_x = 0
@@ -114,13 +123,16 @@ class Pane():
         Img_Fill(self.img, self.pane, self.screen)
 
 
+
+
+
 class Button():
     #Кнопки с любыми шрифтами, размерами, положением.
     def __init__(self, name, worker_act, item = ''):
         self.worker_act = worker_act
         self.name = name
         self.item = item
-        self.state = [0,0]
+        self.state = 'off'
         self.img = None
         self.pos_x = None
         self.pos_y = None
@@ -133,14 +145,14 @@ class Button():
     def IsOn (self, mouse_pos):
         if (self.pos_x < mouse_pos[0] < self.pos_x + self.width) :
             if (self.pos_y < mouse_pos[1] < self.pos_y + self.height):
-                self.state = [0,1]
+                self.state = 'on'
                 return True
-        self.state = [0,0]
+        self.state = 'off'
         return False
 
     def draw (self):
         text = self.font.render(self.name, True, [0,0,0])
-        self.img.draw(self.pos_x, self.pos_y, [1,2], self.state)
+        self.img.draw_Button(self.pos_x, self.pos_y, self.state)
         #Img_Fill(self.bg_draw,[[self.pos_x,self.pos_y],[self.pos_x+self.width, self.pos_y+self.height]], self.screen)
         self.screen.blit(text, (self.pos_x + (self.width/2 - text.get_width()/2), self.pos_y +(self.height/2 - text.get_height()/2)))
 
@@ -170,6 +182,15 @@ class Image():
         crop_pos_x = crop_width*elem[0]
         crop_pos_y = crop_height*elem[1]
         self.screen.blit(self.img, [pos_x, pos_y],(crop_pos_x,crop_pos_y,crop_width,crop_height))
+
+
+    def draw_Button(self, pos_x, pos_y, state):
+        if state == 'off':
+            elem = [0,0]
+        elif state == 'on':
+            elem = [0,1]
+        self.draw(pos_x, pos_y, [1,2], elem)
+
 
     def fill(self, area):
         Img_Fill(area, self.screen)

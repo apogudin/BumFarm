@@ -31,8 +31,7 @@ while done == False:
 
     screen.fill([255,255,255])
 
-    #BUG! pane menu_ - прорисовываются тоже все!
-    for pane in PANES_LIST:
+    for pane in PANE_LIST_DRAW:
         pane.fill()
 
     for group in INTERFACE_GROUPS:

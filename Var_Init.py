@@ -102,7 +102,7 @@ Text01 = Text(Font25, [Button_Head1, Button_Head2, Button_Head3], 'type')
 
 for text in TEXT_LIST:
     text.screen  = screen
-for pane in PANES_LIST:
+for pane in PANE_LIST:
     pane.screen = screen
 for image in IMAGE_LIST:
     image.screen = screen
