@@ -52,6 +52,8 @@ Pane_Alert = Pane('alert')
 Pane_Main = Pane('main')
 Pane_Menu_Main = Pane('menu:main')
 Pane_Menu_Shop = Pane('menu:shop')
+Pane_Map = Pane('map')
+
 
 Button_Menu = Button('Menu', Worker.switch, Bums)
 
@@ -76,6 +78,9 @@ Button_Menu_Main2 = Button('MAIN2', Worker.buy)
 Button_Menu_Shop1 = Button('BUY1', Worker.buy)
 Button_Menu_Shop2 = Button('BUY2', Worker.buy)
 
+Building1 = Button ('yep', Worker.buy)
+
+
 Pane_Head.Button_Init([Button_Head1, Button_Head2, Button_Head3])
 Pane_Shop.Button_Init([Button_Shop11, Button_Shop12, Button_Shop13, Button_Shop14, Button_Shop15,
                        Button_Shop21, Button_Shop22, Button_Shop23, Button_Shop24, Button_Shop25, ])
@@ -89,9 +94,15 @@ Img_B_Main = Image('Button_Main.png', BUTTON_DICT['main'])
 Img_B_Menu_Main = Image('Button_Menu_Main.png', BUTTON_DICT['menu:main'])
 Img_B_Head = Image('Button_Head.png', BUTTON_DICT['head'])
 Img_Bg1 = Image('Color1.png', [Pane_Head, Pane_Main, Pane_Alert, Pane_Shop])
-Img_Bg2 = Image('Color2.png', [Pane_Menu_Main, Pane_Menu_Shop, Pane_News])
+Img_Bg2 = Image('Color2.png', [Pane_Menu_Main, Pane_Menu_Shop, Pane_News, Building1])
+
+
+Img_Map1 = Image('map.png', [Pane_Map])
 
 Text01 = Text(Font25, [Button_Head1, Button_Head2, Button_Head3], 'type')
+
+
+
 
 #Text_Resourses('Всего денег', Budget.amount, 10, Font25, screen, 25, 1)
 ##Text_Resourses('Всего бомжей', Bums.amount, 10, Font25, screen, 25, 2)

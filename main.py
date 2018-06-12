@@ -18,6 +18,11 @@ while done == False:
             if out is not None:
                 TEMP_INTERFACE_GROUP = [out]
 
+            Pane_Map.user_map_place = mouse_pos
+            print(mouse_pos)
+            Pane_Map.Button_Init([Building1])
+
+
             #Чтоб сейчас хоть как-то по-человечески выходить
             if Button_Quit.IsOn(mouse_pos):
                 done = True
@@ -28,12 +33,10 @@ while done == False:
             alert = ''
 
     #ОТРИСОВКА
-
     screen.fill([255,255,255])
 
     for pane in PANE_LIST_DRAW:
         pane.fill()
-
     for group in INTERFACE_GROUPS:
         if group in BUTTON_DICT:
             for button in BUTTON_DICT[group]:
@@ -45,6 +48,3 @@ while done == False:
     pygame.display.flip()
 
 pygame.quit()
-
-#print(Button_Menu.size(), Button_Head3.size(), Button_Quit.size(),
-# Button_Menu_Shop2.size())

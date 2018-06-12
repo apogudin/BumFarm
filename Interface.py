@@ -21,13 +21,14 @@ class Pane():
         self.menu_w = 200
         self.img = None
         self.screen = None
+        self.user_map_place = None
 
         pane_head = [[0,0],[self.screen_x,self.head_h]]
         pane_shop = [[0,self.screen_y-self.shop_h],[self.screen_x, self.screen_y]]
         pane_news = [[0,pane_shop[0][1]-self.news_h],[self.screen_x,pane_shop[0][1]]]
         pane_alert = [[self.screen_x - self.menu_w, pane_news[0][1] - self.alert_h],[self.screen_x, pane_news[0][1]]]
         pane_menu = [[self.screen_x-self.menu_w, self.head_h],[self.screen_x, pane_alert[0][1]]]
-
+        pane_map = [[0,pane_head[1][1]],[pane_alert[0][0],pane_alert[1][1]]]
         if self.pane_type ==  'head':
             PANE_LIST_DRAW.append(self)
             self.pane = pane_head
@@ -47,14 +48,17 @@ class Pane():
             self.pane = pane_menu
         if self.pane_type ==  'main':
             self.pane = pane_head
-
-        print(self.pane_type, self.pane, sep = ' ')
+        if self.pane_type == 'map':
+            PANE_LIST_DRAW.append(self)
+            self.pane = pane_map
 
     def Button_Init(self, button_list):
         #записывает в кнопки их координаты
         self.button_list = button_list
         self.height = 25
         self.grid_area = self.pane
+
+
         Nbutton = len(button_list)
         gap_x = 10
         gap_y = 10
@@ -103,27 +107,64 @@ class Pane():
             self.width = 100
             self.grid_area[0][0] = self.grid_area[1][0] - self.width
 
+        if self.pane_type != 'map':
+            #Записываем в кнопки их координаты
+            grid_x = 0
+            grid_y = 0
+            for button in button_list:
+                i = button_list.index(button)
+                if ((i+1)-(grid_y*Nx)) > Nx:
+                    grid_x = 0
+                    grid_y += 1
+                button.pos_x, button.pos_y = Grid(self.width, self.height, Nx, Ny, gap_x, gap_y, self.grid_area)
+                button.pane = self.pane_type
+                button.width = self.width
+                button.height = self.height
+                Append_To_Dict(BUTTON_DICT, self.pane_type, button)
+                grid_x += 1
 
-        #Записываем в кнопки их координаты
-        grid_x = 0
-        grid_y = 0
-        for button in button_list:
-            i = button_list.index(button)
-            if ((i+1)-(grid_y*Nx)) > Nx:
-                grid_x = 0
-                grid_y += 1
-            button.pos_x, button.pos_y = Grid(self.width, self.height, Nx, Ny, gap_x, gap_y, self.grid_area)
-            button.pane = self.pane_type
-            button.width = self.width
-            button.height = self.height
-            Append_To_Dict(BUTTON_DICT, self.pane_type, button)
-            grid_x += 1
+
+        if self.pane_type == 'map':
+            self.pane_width = self.grid_area[1][0] - self.grid_area[0][0]
+            self.pane_height = self.grid_area[1][1] - self.grid_area[0][1]
+            Nx = 8
+            Ny = 8
+            self.width = self.pane_width/Nx
+            self.height = self.pane_height/Ny
+            start_x = self.grid_area[0][0]
+            start_y = self.grid_area[0][1]
+
+            self.Map_Grid = [[[start_x + i*self.width, start_y + j*self.height]
+            for i in range(Nx)] for j in range(Ny)]
+            pos_x = None
+            pos_y = None
+            print(self.grid_area)
+            for i in range(1,Nx):
+                if self.user_map_place[0] < self.Map_Grid[0][i][0]:
+                    pos_x = self.Map_Grid[0][i-1][0]
+                    break
+
+            for j in range(1,Ny):
+                if self.user_map_place[1] < self.Map_Grid[j][0][1]:
+                    pos_y = self.Map_Grid[j-1][0][1]
+                    break
+
+            print(pos_x, pos_y)
+
+            #инициализация кнопки
+            for button in button_list:
+                button.pos_x, button.pos_y = pos_x, pos_y
+                button.pane = self.pane_type
+                button.width = self.width
+                button.height = self.height
+                Append_To_Dict(BUTTON_DICT, self.pane_type, button)
+
+
+
+
 
     def fill(self):
         Img_Fill(self.img, self.pane, self.screen)
-
-
-
 
 
 class Button():
@@ -151,10 +192,10 @@ class Button():
         return False
 
     def draw (self):
-        text = self.font.render(self.name, True, [0,0,0])
+        #text = self.font.render(self.name, True, [0,0,0])
         self.img.draw_Button(self.pos_x, self.pos_y, self.state)
         #Img_Fill(self.bg_draw,[[self.pos_x,self.pos_y],[self.pos_x+self.width, self.pos_y+self.height]], self.screen)
-        self.screen.blit(text, (self.pos_x + (self.width/2 - text.get_width()/2), self.pos_y +(self.height/2 - text.get_height()/2)))
+        #self.screen.blit(text, (self.pos_x + (self.width/2 - text.get_width()/2), self.pos_y +(self.height/2 - text.get_height()/2)))
 
     def Activate(self):
         return self.worker_act(self)
