@@ -148,8 +148,10 @@ class Button():
         return self.worker_act(self)
 
     def size(self):
-        #dev_tool
         return [self.width, self.height]
+
+    def pos(self):
+        return [self.pos_x, self.pos_y]
 
 
 class Image():
@@ -190,3 +192,37 @@ class Actor ():
 
     def nothing(self, item=''):
         return
+
+
+class Text():
+    def __init__(self, font, pos_list, type = None):
+        #либо указываем напрямую список позиций pos_list,
+        #либо передаём список объектов и указываем их тип (для типов тут прописаны специфики расположения)
+        TEXT_LIST.append(self)
+        self.font = font
+        self.screen = None
+
+        self.obj_pos_list = [obj.pos() for obj in pos_list]
+        self.obj_size_list = [obj.size() for obj in pos_list]
+
+    def draw(self, text_list, event = None, duration = None):
+
+        self.text_list = [self.font.render(text, True, [0,0,0]) for text in text_list]
+
+        if type is None:
+            self.pos_list = pos_list
+        else:
+            self.pos_list = []
+            if type == 'head':
+                pass
+            elif type is not None:
+                #Для любого указанного, но непрописанного type ставим по центру
+                for i in range(len(self.text_list)):
+                    self.pos_list.append([
+                        self.obj_pos_list[i][0] + (self.obj_size_list[i][0]/2 - self.text_list[i].get_width()/2),
+                        self.obj_pos_list[i][1] +(self.obj_size_list[i][1]/2 - self.text_list[i].get_height()/2)
+                        ])
+
+        for i in range(len(self.text_list)):
+            self.screen.blit(self.text_list[i], self.pos_list[i])
+        #for ... pos_list ... blit..

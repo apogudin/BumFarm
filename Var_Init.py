@@ -66,9 +66,9 @@ Button_Shop23 = Button('SHOP23', Worker.switch, Bums)
 Button_Shop24 = Button('SHOP24', Worker.switch, Bums)
 Button_Shop25 = Button('SHOP25', Worker.switch, Bums)
 
-Button_Head1 = Button('h1', Worker.switch, Bums)
-Button_Head2 = Button('h2', Worker.switch, Bums)
-Button_Head3 = Button('h3', Worker.switch, Bums)
+Button_Head1 = Button('', Worker.switch, Bums)
+Button_Head2 = Button('', Worker.switch, Bums)
+Button_Head3 = Button('', Worker.switch, Bums)
 
 Button_Quit = Button('EXIT', Worker.nothing)
 Button_Menu_Main2 = Button('MAIN2', Worker.buy)
@@ -91,8 +91,17 @@ Img_B_Head = Image('Button_Head.png', BUTTON_DICT['head'])
 Img_Bg1 = Image('Color1.png', [Pane_Head, Pane_Main, Pane_Alert, Pane_Shop])
 Img_Bg2 = Image('Color2.png', [Pane_Menu_Main, Pane_Menu_Shop, Pane_News])
 
+Text01 = Text(Font25, [Button_Head1, Button_Head2, Button_Head3], 'type')
+
+#Text_Resourses('Всего денег', Budget.amount, 10, Font25, screen, 25, 1)
+##Text_Resourses('Всего бомжей', Bums.amount, 10, Font25, screen, 25, 2)
+#Text_Resourses('Всего остановок', Station.amount, 10, Font25, screen, 25, 3)
+#Text_Resourses('Мест в останвках', Station.limit-Station.Bums, 10, Font25, screen, 25, 4)
 
 
+
+for text in TEXT_LIST:
+    text.screen  = screen
 for pane in PANES_LIST:
     pane.screen = screen
 for image in IMAGE_LIST:
