@@ -22,6 +22,7 @@ class Pane():
         self.img = None
         self.screen = None
         self.user_map_place = None
+        self.map_mode = 'base'
 
         pane_head = [[0,0],[self.screen_x,self.head_h]]
         pane_shop = [[0,self.screen_y-self.shop_h],[self.screen_x, self.screen_y]]
@@ -29,6 +30,7 @@ class Pane():
         pane_alert = [[self.screen_x - self.menu_w, pane_news[0][1] - self.alert_h],[self.screen_x, pane_news[0][1]]]
         pane_menu = [[self.screen_x-self.menu_w, self.head_h],[self.screen_x, pane_alert[0][1]]]
         pane_map = [[0,pane_head[1][1]],[pane_alert[0][0],pane_alert[1][1]]]
+
         if self.pane_type ==  'head':
             PANE_LIST_DRAW.append(self)
             self.pane = pane_head
@@ -51,6 +53,7 @@ class Pane():
         if self.pane_type == 'map':
             PANE_LIST_DRAW.append(self)
             self.pane = pane_map
+
 
     def Button_Init(self, button_list):
         #записывает в кнопки их координаты
@@ -128,28 +131,27 @@ class Pane():
             self.pane_width = self.grid_area[1][0] - self.grid_area[0][0]
             self.pane_height = self.grid_area[1][1] - self.grid_area[0][1]
             Nx = 8
-            Ny = 8
+            Ny = 6
             self.width = self.pane_width/Nx
             self.height = self.pane_height/Ny
             start_x = self.grid_area[0][0]
             start_y = self.grid_area[0][1]
 
             self.Map_Grid = [[[start_x + i*self.width, start_y + j*self.height]
-            for i in range(Nx)] for j in range(Ny)]
+            for i in range(Nx+1)] for j in range(Ny+1)]
             pos_x = None
             pos_y = None
-            print(self.grid_area)
-            for i in range(1,Nx):
+            print(self.pane, self.Map_Grid)
+            for i in range(1,Nx+1):
                 if self.user_map_place[0] < self.Map_Grid[0][i][0]:
                     pos_x = self.Map_Grid[0][i-1][0]
                     break
 
-            for j in range(1,Ny):
+            for j in range(1,Ny+1):
                 if self.user_map_place[1] < self.Map_Grid[j][0][1]:
                     pos_y = self.Map_Grid[j-1][0][1]
                     break
 
-            print(pos_x, pos_y)
 
             #инициализация кнопки
             for button in button_list:
@@ -160,8 +162,15 @@ class Pane():
                 Append_To_Dict(BUTTON_DICT, self.pane_type, button)
 
 
+    def IsOn (self, mouse_pos):
+        if (self.pane[0][0] < mouse_pos[0] < self.pane[1][0]) :
+            if (self.pane[0][1] < mouse_pos[1] < self.pane[1][1]):
+                return True
 
+        return False
 
+    def get_size(self):
+        return(self.pane)
 
     def fill(self):
         Img_Fill(self.img, self.pane, self.screen)
@@ -192,10 +201,10 @@ class Button():
         return False
 
     def draw (self):
-        #text = self.font.render(self.name, True, [0,0,0])
+        text = self.font.render(self.name, True, [0,0,0])
         self.img.draw_Button(self.pos_x, self.pos_y, self.state)
         #Img_Fill(self.bg_draw,[[self.pos_x,self.pos_y],[self.pos_x+self.width, self.pos_y+self.height]], self.screen)
-        #self.screen.blit(text, (self.pos_x + (self.width/2 - text.get_width()/2), self.pos_y +(self.height/2 - text.get_height()/2)))
+        self.screen.blit(text, (self.pos_x + (self.width/2 - text.get_width()/2), self.pos_y +(self.height/2 - text.get_height()/2)))
 
     def Activate(self):
         return self.worker_act(self)
@@ -241,13 +250,17 @@ class Actor ():
     def __init__(self):
         self.item = 'None'
         self.interface_group = 'None'
+        self.map_mode = 'base'
+        self.map_mode_switch = 'building'
 
     def switch(self, button):
         self.interface_group ="menu:" + button.pane
         self.item = button.item
-        #print(self.interface_group)
         return self.interface_group
 
+    def switch_map(self, button=None):
+        self.map_mode,self.map_mode_switch = self.map_mode_switch, self.map_mode
+        print(self.map_mode, self.map_mode_switch)
 
     def buy(self, button):
         self.item.buy()

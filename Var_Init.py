@@ -40,6 +40,8 @@ Alert_Event = pygame.USEREVENT+2
 
 pygame.time.set_timer(Time1sec, 1000)
 
+map_mode = 'base'
+
 alert = ''
 done = False
 
@@ -75,7 +77,7 @@ Button_Head3 = Button('', Worker.switch, Bums)
 Button_Quit = Button('EXIT', Worker.nothing)
 Button_Menu_Main2 = Button('MAIN2', Worker.buy)
 
-Button_Menu_Shop1 = Button('BUY1', Worker.buy)
+Button_Menu_Shop1 = Button('BUY1', Worker.switch_map)
 Button_Menu_Shop2 = Button('BUY2', Worker.buy)
 
 Building1 = Button ('yep', Worker.buy)
@@ -94,9 +96,9 @@ Img_B_Main = Image('Button_Main.png', BUTTON_DICT['main'])
 Img_B_Menu_Main = Image('Button_Menu_Main.png', BUTTON_DICT['menu:main'])
 Img_B_Head = Image('Button_Head.png', BUTTON_DICT['head'])
 Img_Bg1 = Image('Color1.png', [Pane_Head, Pane_Main, Pane_Alert, Pane_Shop])
-Img_Bg2 = Image('Color2.png', [Pane_Menu_Main, Pane_Menu_Shop, Pane_News, Building1])
+Img_Bg2 = Image('Color2.png', [Pane_Menu_Main, Pane_Menu_Shop, Pane_News])
 
-
+Img_Bg2 = Image('Build1.png', [Building1])
 Img_Map1 = Image('map.png', [Pane_Map])
 
 Text01 = Text(Font25, [Button_Head1, Button_Head2, Button_Head3], 'type')
@@ -108,8 +110,8 @@ Text01 = Text(Font25, [Button_Head1, Button_Head2, Button_Head3], 'type')
 ##Text_Resourses('Всего бомжей', Bums.amount, 10, Font25, screen, 25, 2)
 #Text_Resourses('Всего остановок', Station.amount, 10, Font25, screen, 25, 3)
 #Text_Resourses('Мест в останвках', Station.limit-Station.Bums, 10, Font25, screen, 25, 4)
-
-
+Building1.font = Font12
+Building1.screen = screen
 
 for text in TEXT_LIST:
     text.screen  = screen
