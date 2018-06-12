@@ -1,11 +1,13 @@
+import math
 import pygame
+import os
+import sys
+from Objects import *
 from MyFunctions import *
 from Configs import *
-from Objects import *
-import math
 
 
-class Panes():
+class Pane():
     def __init__(self, type):
         #для выбранного type высчитывает область: левый-верхний, правый-нижний угол
         PANES_LIST.append(self)
@@ -17,6 +19,8 @@ class Panes():
         self.alert_h = 100
         self.shop_h = 150
         self.menu_w = 200
+        self.img = None
+        self.screen = None
 
         pane_head = [[0,0],[self.screen_x,self.head_h]]
         pane_shop = [[0,self.screen_y-self.shop_h],[self.screen_x, self.screen_y]]
@@ -37,20 +41,19 @@ class Panes():
         if self.pane_type ==  'main':
             self.pane = pane_head
 
-
     def Button_Init(self, button_list):
         #записывает в кнопки их координаты
         self.button_list = button_list
-        self.hight = 25
+        self.height = 25
         self.grid_area = self.pane
         Nbutton = len(button_list)
         gap_x = 10
         gap_y = 10
 
         #Строит матрицу для кнопок, возвращает [pos_x, pos_y]
-        def Grid (width, hight, Nx, Ny, gap_x, gap_y, pane):
+        def Grid (width, height, Nx, Ny, gap_x, gap_y, pane):
             total_x = width*Nx + gap_x*(Nx-1)
-            total_y = hight*Ny + gap_y*(Ny-1)
+            total_y = height*Ny + gap_y*(Ny-1)
             pane_x =  pane[1][0] - pane[0][0]
             pane_y =  pane[1][1] - pane[0][1]
             start_x = pane[0][0] + (pane_x/2 - total_x/2)
@@ -58,7 +61,7 @@ class Panes():
 
             #Матрица Nx на Ny по центру области win_size,
             #где элементы - [Y][X][x,y] левого верхнего угла распологаемого объекта для позиции X, Y в матрице
-            Grid = [[[start_x + i*(width + gap_x),start_y + j*(hight+gap_y)] \
+            Grid = [[[start_x + i*(width + gap_x),start_y + j*(height+gap_y)] \
             for i in range(Nx)] for j in range(Ny)]
 
             pos_x = Grid[grid_y][grid_x][0]
@@ -73,12 +76,12 @@ class Panes():
             Nx, Ny = NxNy(Nbutton, row = 2)
             gap_x = 20
             self.width = 125
-            self.hight = 60
+            self.height = 60
         if self.pane_type == 'head':
             Nx, Ny = NxNy(Nbutton)
             gap_x = 50
             self.width = 50
-            self.hight = self.pane[1][1] - self.pane[0][1]
+            self.height = self.pane[1][1] - self.pane[0][1]
         if self.pane_type == 'menu:shop':
             Nx, Ny = NxNy(Nbutton)
             self.width = (self.menu_w - (Nx+1)*gap_x)/Nx
@@ -100,44 +103,74 @@ class Panes():
             if ((i+1)-(grid_y*Nx)) > Nx:
                 grid_x = 0
                 grid_y += 1
-            button.pos_x, button.pos_y = Grid(self.width, self.hight, Nx, Ny, gap_x, gap_y, self.grid_area)
+            button.pos_x, button.pos_y = Grid(self.width, self.height, Nx, Ny, gap_x, gap_y, self.grid_area)
             button.pane = self.pane_type
             button.width = self.width
-            button.hight = self.hight
+            button.height = self.height
             Append_To_Dict(BUTTON_DICT, self.pane_type, button)
             grid_x += 1
 
+    def fill(self):
+        Img_Fill(self.img, self.pane, self.screen)
+
+
 class Button():
     #Кнопки с любыми шрифтами, размерами, положением.
-    def __init__(self, name, bg, bg_on, worker_act, item = ''):
+    def __init__(self, name, worker_act, item = ''):
         self.worker_act = worker_act
         self.name = name
-        self.bg = bg
-        self.bg_draw = bg
-        self.bg_on = bg_on
         self.item = item
-        self.pos_x = 0
-        self.pos_y = 0
-        self.pane = ''
-        self.width = 0
-        self.hight = 0
-
-    def draw (self, screen, font = 'Colibri',font_size = 12):
-        Font_Text = pygame.font.SysFont(font, font_size)
-        Img_Fill(self.bg_draw,[[self.pos_x,self.pos_y],[self.pos_x+self.width, self.pos_y+self.hight]], screen)
-        text = Font_Text.render(self.name, True, [0,0,0])
-        screen.blit(text, (self.pos_x + (self.width/2 - text.get_width()/2), self.pos_y +(self.hight/2 - text.get_height()/2)))
+        self.state = [0,0]
+        self.img = None
+        self.pos_x = None
+        self.pos_y = None
+        self.pane = None
+        self.width = None
+        self.height = None
+        self.screen = None
+        self.font = None
 
     def IsOn (self, mouse_pos):
         if (self.pos_x < mouse_pos[0] < self.pos_x + self.width) :
-            if (self.pos_y < mouse_pos[1] < self.pos_y + self.hight):
-                self.bg_draw = self.bg_on
+            if (self.pos_y < mouse_pos[1] < self.pos_y + self.height):
+                self.state = [0,1]
                 return True
-        self.bg_draw = self.bg
+        self.state = [0,0]
         return False
+
+    def draw (self):
+        text = self.font.render(self.name, True, [0,0,0])
+        self.img.draw(self.pos_x, self.pos_y, [1,2], self.state)
+        #Img_Fill(self.bg_draw,[[self.pos_x,self.pos_y],[self.pos_x+self.width, self.pos_y+self.height]], self.screen)
+        self.screen.blit(text, (self.pos_x + (self.width/2 - text.get_width()/2), self.pos_y +(self.height/2 - text.get_height()/2)))
 
     def Activate(self):
         return self.worker_act(self)
+
+    def size(self):
+        #dev_tool
+        return [self.width, self.height]
+
+
+class Image():
+    def __init__(self, image, object_list = [], folder = 'images'):
+        IMAGE_LIST.append(self)
+        self.img = pygame.image.load(os.path.join(folder,image))
+        self.width = self.img.get_width()
+        self.height = self.img.get_height()
+        self.screen = None
+        for obj in object_list:
+            obj.img = self
+
+    def draw(self, pos_x, pos_y, Nxy = [1,1], elem = [0,0]):
+        crop_width = self.width/Nxy[0]
+        crop_height = self.height/Nxy[1]
+        crop_pos_x = crop_width*elem[0]
+        crop_pos_y = crop_height*elem[1]
+        self.screen.blit(self.img, [pos_x, pos_y],(crop_pos_x,crop_pos_y,crop_width,crop_height))
+
+    def fill(self, area):
+        Img_Fill(area, self.screen)
 
 
 class Actor ():

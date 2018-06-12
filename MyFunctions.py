@@ -29,30 +29,26 @@ def Temporary_Text (text, event, duration):
     pygame.time.set_timer(event, duration)
     return text
 
-def Img_Fill(bg, area, screen):
+def Img_Fill(Image, area, screen):
     #Замостить изображением прямоугольник по двум точкам: лево-верх и право-низ
-    left_up = area[0]
-    right_down = area[1]
-    bg_width = bg.get_width()
-    bg_height = bg.get_height()
-    total_x = right_down[0] - left_up[0]
-    total_y = right_down[1]-left_up[1]
-    Nx = math.ceil(total_x/bg_width)
-    Ny = math.ceil(total_y/bg_height)
-    X_null, Y_null = left_up[0], left_up[1]
-
+    img = Image.img
+    width = Image.width
+    height = Image.height
+    total_x = area[1][0] - area[0][0]
+    total_y = area[1][1]-area[0][1]
+    Nx = math.ceil(total_x/width)
+    Ny = math.ceil(total_y/height)
+    X_null, Y_null = area[0][0], area[0][1]
     for i in range(Ny):
-        crop_x, crop_y = bg_width, bg_height
-        Yi = Y_null + bg_height*i
-        if total_y - bg_height*i < bg_height:
-            crop_y = total_y - bg_height*i
-
+        crop_x, crop_y = width, height
+        Yi = Y_null + height*i
+        if total_y - height*i < height:
+            crop_y = total_y - height*i
         for j in range(Nx):
-            Xi = X_null + bg_width*j
-            if total_x - bg_width*j < bg_height:
-                crop_x = total_x - bg_width*j
-
-            screen.blit(bg, [Xi, Yi],(0,0,crop_x,crop_y))
+            Xi = X_null + width*j
+            if total_x - width*j < height:
+                crop_x = total_x - width*j
+            screen.blit(img, [Xi, Yi],(0,0,crop_x,crop_y))
 
 def Append_To_Dict(dict, key, value):
     if key in dict:
