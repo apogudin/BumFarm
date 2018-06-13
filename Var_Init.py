@@ -6,9 +6,34 @@ from Objects import *
 
 pygame.init()
 
+screen_x = win_size[0]
+screen_y = win_size[1]
+head_h = 25
+news_h = 25
+alert_h = 100
+shop_h = 150
+menu_w = 200
+
+#Области самих панелей
+AREA_HEAD = [[0,0],[screen_x,head_h]]
+AREA_SHOP = [[0,screen_y-shop_h],[screen_x, screen_y]]
+AREA_NEWS = [[0,AREA_SHOP[0][1]-news_h],[screen_x,AREA_SHOP[0][1]]]
+AREA_ALERT = [[screen_x - menu_w, AREA_NEWS[0][1] - alert_h],[screen_x, AREA_NEWS[0][1]]]
+AREA_MENU = [[screen_x-menu_w, head_h],[screen_x, AREA_ALERT[0][1]]]
+AREA_MAP = [[0,AREA_HEAD[1][1]],[AREA_ALERT[0][0],AREA_ALERT[1][1]]]
+
+#Область сетки кнопок панелей
+AREA_HEAD_GRID = [[0,0],[AREA_MENU[0][0],AREA_MENU[0][1]]]
+AREA_HEAD_MENU_GRID = [[screen_x-menu_w, 0],[screen_x, head_h]]
+AREA_SHOP_GRID = [[0,screen_y-shop_h],[screen_x, screen_y]]
+AREA_MENU_MAIN_GRID = [AREA_MENU[0],AREA_MENU[1]]
+AREA_MENU_SHOP_GRID = [[AREA_ALERT[0][0], AREA_ALERT[0][1]-200],[screen_x, AREA_ALERT[1][1]]]
+AREA_MENU_BUILD_GRID = [[AREA_ALERT[0][0], AREA_ALERT[0][1]-200],[screen_x, AREA_ALERT[1][1]]]
+AREA_MAP_GRID = [[0,head_h],[AREA_ALERT[0][0],AREA_ALERT[1][1]]]
+
+
 Font25 = pygame.font.SysFont('Colibri', 25)
 Font12 = pygame.font.SysFont('Colibri', 12)
-
 
 Budget = Coins()
 Bums = Bum()
@@ -23,17 +48,9 @@ Image_Null3 = pygame.image.load(os.path.join('images', 'Color3.png'))
 Image_Null5 = pygame.image.load(os.path.join('images', 'Color5.png'))
 Image_Null4 = pygame.image.load(os.path.join('images', 'Color4.png'))
 
-
-
-
-
 screen = pygame.display.set_mode(win_size)
 pygame.display.set_caption('Бомжеферма')
 pygame.display.set_icon(Image_Bum)
-
-
-
-
 
 Time1sec = pygame.USEREVENT+1
 Alert_Event = pygame.USEREVENT+2
@@ -47,15 +64,19 @@ done = False
 
 Worker = Actor()
 
-Pane_Head = Pane('head')
-Pane_Shop = Pane('shop')
-Pane_News = Pane('news')
-Pane_Alert = Pane('alert')
-Pane_Main = Pane('main')
-Pane_Menu_Main = Pane('menu:main')
-Pane_Menu_Shop = Pane('menu:shop')
-Pane_Map = Pane('map')
+Pane_Head = Pane(AREA_HEAD, AREA_HEAD_GRID)
+Pane_Shop = Pane(AREA_SHOP, AREA_SHOP_GRID)
+Pane_News = Pane(AREA_NEWS)
+Pane_Alert = Pane(AREA_ALERT)
+Pane_Head_Menu = Pane(AREA_HEAD, AREA_HEAD_MENU_GRID)
+Pane_Menu_Main = Pane(AREA_MENU, AREA_MENU_MAIN_GRID)
+Pane_Menu_Shop = Pane(AREA_MENU, AREA_MENU_SHOP_GRID)
+Pane_Map = Pane(AREA_MAP)
 
+PANE_DRAW = [Pane_Map, Pane_Head, Pane_Menu_Main, Pane_Alert, Pane_News, Pane_Shop]
+
+CONS_INTERFACE_GROUP = [Pane_Shop, Pane_Head, Pane_Head_Menu, Pane_Map]
+TEMP_INTERFACE_GROUP = [Pane_Menu_Main]
 
 Button_Menu = Button('Menu', Worker.switch, Bums)
 
@@ -83,33 +104,32 @@ Button_Menu_Shop2 = Button('BUY2', Worker.buy)
 Building1 = Button ('yep', Worker.buy)
 
 
-Pane_Head.Button_Init([Button_Head1, Button_Head2, Button_Head3])
+Pane_Head.Button_Init([Button_Head1, Button_Head2, Button_Head3], [3,1],[100,20])
 Pane_Shop.Button_Init([Button_Shop11, Button_Shop12, Button_Shop13, Button_Shop14, Button_Shop15,
-                       Button_Shop21, Button_Shop22, Button_Shop23, Button_Shop24, Button_Shop25, ])
-Pane_Main.Button_Init([Button_Menu])
-Pane_Menu_Main.Button_Init([Button_Quit, Button_Menu_Main2])
-Pane_Menu_Shop.Button_Init([Button_Menu_Shop1, Button_Menu_Shop2])
+                       Button_Shop21, Button_Shop22, Button_Shop23, Button_Shop24, Button_Shop25], [5,2], [125,60])
+Pane_Head_Menu.Button_Init([Button_Menu],[1,1],[100,20])
+Pane_Menu_Main.Button_Init([Button_Quit, Button_Menu_Main2],[1,3],[150,25])
+Pane_Menu_Shop.Button_Init([Button_Menu_Shop1, Button_Menu_Shop2], [2,1],[100,25])
+Pane_Map.Button_Init([],[1,1])
 
-Img_B_Shop = Image('Button_Shop.png', BUTTON_DICT['shop'])
-Img_B_Menu_Shop = Image('Button_Menu_Shop.png', BUTTON_DICT['menu:shop'])
-Img_B_Main = Image('Button_Main.png', BUTTON_DICT['main'])
-Img_B_Menu_Main = Image('Button_Menu_Main.png', BUTTON_DICT['menu:main'])
-Img_B_Head = Image('Button_Head.png', BUTTON_DICT['head'])
-Img_Bg1 = Image('Color1.png', [Pane_Head, Pane_Main, Pane_Alert, Pane_Shop])
+Img_B_Shop = Image('Button_Shop.png', Pane_Shop.button_list)
+Img_B_Menu_Shop = Image('Button_Menu_Shop.png', Pane_Head.button_list)
+Img_B_Main = Image('Button_Main.png', Pane_Head_Menu.button_list)
+Img_B_Menu_Main = Image('Button_Menu_Main.png', Pane_Menu_Main.button_list)
+Img_B_Head = Image('Button_Head.png', Pane_Menu_Shop.button_list)
+
+Img_Bg1 = Image('Color1.png', [Pane_Head, Pane_Head_Menu, Pane_Alert, Pane_Shop])
 Img_Bg2 = Image('Color2.png', [Pane_Menu_Main, Pane_Menu_Shop, Pane_News])
+Img_Map1 = Image('map.png', [Pane_Map])
 
 Img_Bg2 = Image('Build1.png', [Building1])
-Img_Map1 = Image('map.png', [Pane_Map])
+
 
 Text01 = Text(Font25, [Button_Head1, Button_Head2, Button_Head3], 'type')
 
 
 
 
-#Text_Resourses('Всего денег', Budget.amount, 10, Font25, screen, 25, 1)
-##Text_Resourses('Всего бомжей', Bums.amount, 10, Font25, screen, 25, 2)
-#Text_Resourses('Всего остановок', Station.amount, 10, Font25, screen, 25, 3)
-#Text_Resourses('Мест в останвках', Station.limit-Station.Bums, 10, Font25, screen, 25, 4)
 Building1.font = Font12
 Building1.screen = screen
 

@@ -8,125 +8,75 @@ from Configs import *
 import copy
 
 class Pane():
-    def __init__(self, type):
+    def __init__(self, area, grid=None):
         #для выбранного type высчитывает область: левый-верхний, правый-нижний угол
         PANE_LIST.append(self)
-        self.screen_x = win_size[0]
-        self.screen_y = win_size[1]
+        self.pane = area
+        self.grid_area = grid
         self.pane_type = type
-        self.head_h = 25
-        self.news_h = 25
-        self.alert_h = 100
-        self.shop_h = 150
-        self.menu_w = 200
         self.img = None
         self.screen = None
         self.user_map_place = None
-        self.map_mode = 'base'
 
-        pane_head = [[0,0],[self.screen_x,self.head_h]]
-        pane_shop = [[0,self.screen_y-self.shop_h],[self.screen_x, self.screen_y]]
-        pane_news = [[0,pane_shop[0][1]-self.news_h],[self.screen_x,pane_shop[0][1]]]
-        pane_alert = [[self.screen_x - self.menu_w, pane_news[0][1] - self.alert_h],[self.screen_x, pane_news[0][1]]]
-        pane_menu = [[self.screen_x-self.menu_w, self.head_h],[self.screen_x, pane_alert[0][1]]]
-        pane_map = [[0,pane_head[1][1]],[pane_alert[0][0],pane_alert[1][1]]]
-
-        if self.pane_type ==  'head':
-            PANE_LIST_DRAW.append(self)
-            self.pane = pane_head
-        if self.pane_type ==  'shop':
-            PANE_LIST_DRAW.append(self)
-            self.pane = pane_shop
-        if self.pane_type ==  'news':
-            PANE_LIST_DRAW.append(self)
-            self.pane = pane_news
-        if self.pane_type ==  'alert':
-            PANE_LIST_DRAW.append(self)
-            self.pane = pane_alert
-        if self.pane_type ==  'menu:shop':
-            self.pane = pane_menu
-        if self.pane_type ==  'menu:main':
-            PANE_LIST_DRAW.append(self)
-            self.pane = pane_menu
-        if self.pane_type ==  'main':
-            self.pane = pane_head
-        if self.pane_type == 'map':
-            PANE_LIST_DRAW.append(self)
-            self.pane = pane_map
-
-
-    def Button_Init(self, button_list):
-        #записывает в кнопки их координаты
+    def Button_Init(self, button_list, NxNy, size = [100, 150], gap = [10,10]):
         self.button_list = button_list
-        self.height = 25
-        self.grid_area = self.pane
 
-
-        Nbutton = len(button_list)
-        gap_x = 10
-        gap_y = 10
-        #Строит матрицу для кнопок, возвращает [pos_x, pos_y]
-        def Grid (width, height, Nx, Ny, gap_x, gap_y, pane):
-            total_x = width*Nx + gap_x*(Nx-1)
-            total_y = height*Ny + gap_y*(Ny-1)
-            pane_x =  pane[1][0] - pane[0][0]
-            pane_y =  pane[1][1] - pane[0][1]
-            start_x = pane[0][0] + (pane_x/2 - total_x/2)
-            start_y = pane[0][1] + (pane_y/2 - total_y/2)
+        def Grid(size_x, size_y, Nx, Ny, gap_x, gap_y, grid_area):
+            total_x = size[0]*NxNy[0] + gap[0]*(NxNy[0]-1)
+            total_y = size[1]*NxNy[1] + gap[1]*(NxNy[1]-1)
+            pane_x =  grid_area[1][0] - grid_area[0][0]
+            pane_y =  grid_area[1][1] - grid_area[0][1]
+            start_x = grid_area[0][0] + (pane_x/2 - total_x/2)
+            start_y = grid_area[0][1] + (pane_y/2 - total_y/2)
 
             #Матрица Nx на Ny по центру области win_size,
             #где элементы - [Y][X][x,y] левого верхнего угла распологаемого объекта для позиции X, Y в матрице
-            Grid = [[[start_x + i*(width + gap_x),start_y + j*(height+gap_y)] \
-            for i in range(Nx)] for j in range(Ny)]
+            Grid = [[[start_x + i*(size[0] + gap[0]),start_y + j*(size[1]+gap[1])] \
+            for i in range(NxNy[0])] for j in range(NxNy[1])]
 
             pos_x = Grid[grid_y][grid_x][0]
             pos_y = Grid[grid_y][grid_x][1]
             return [pos_x, pos_y]
 
-        def NxNy (amount, row = 1):
-            return [math.ceil(amount/row), row]
+        #Записываем в кнопки их координаты
+        grid_x = 0
+        grid_y = 0
+        for button in button_list:
+            i = button_list.index(button)
+            if ((i+1)-(grid_y*NxNy[0])) > NxNy[0]:
+                grid_x = 0
+                grid_y += 1
+            button.pos_x, button.pos_y = Grid(size[0], size[1], NxNy[0], NxNy[1], gap[0], gap[1], self.grid_area)
+            button.pane = self.pane_type
+            button.width = size[0]
+            button.height = size[1]
+            Append_To_Dict(BUTTON_DICT, self.pane_type, button)
+            grid_x += 1
 
-        #В зависимости от типа панели определяем параметры для Grid
-        if self.pane_type == 'shop':
-            Nx, Ny = NxNy(Nbutton, row = 2)
-            gap_x = 20
-            self.width = 125
-            self.height = 60
-        if self.pane_type == 'head':
-            Nx, Ny = NxNy(Nbutton)
-            gap_x = 50
-            self.width = 50
-            self.height = self.grid_area[1][1] - self.grid_area[0][1]
-        if self.pane_type == 'menu:shop':
-            Nx, Ny = NxNy(Nbutton)
-            self.width = (self.menu_w - (Nx+1)*gap_x)/Nx
-            self.grid_area[0][1] = self.grid_area[1][1]-100
-        if self.pane_type == 'menu:main':
-            Ny, Nx = NxNy(Nbutton)
-            self.width = (self.grid_area[1][0] - self.grid_area[0][0]) - gap_x*2
-        if self.pane_type == 'main':
-            Nx, Ny = NxNy(Nbutton)
-            gap_x, gap_y = 0, 0
-            self.width = 100
-            self.grid_area[0][0] = self.grid_area[1][0] - self.width
+    def draw_Button(self):
+        for button in self.button_list:
+            button.draw()
 
-        if self.pane_type != 'map':
-            #Записываем в кнопки их координаты
-            grid_x = 0
-            grid_y = 0
-            for button in button_list:
-                i = button_list.index(button)
-                if ((i+1)-(grid_y*Nx)) > Nx:
-                    grid_x = 0
-                    grid_y += 1
-                button.pos_x, button.pos_y = Grid(self.width, self.height, Nx, Ny, gap_x, gap_y, self.grid_area)
-                button.pane = self.pane_type
-                button.width = self.width
-                button.height = self.height
-                Append_To_Dict(BUTTON_DICT, self.pane_type, button)
-                grid_x += 1
+    def draw_pane(self):
+        Img_Fill(self.img, self.pane, self.screen)
+
+    def IsOn (self, mouse_pos):
+        if (self.pane[0][0] < mouse_pos[0] < self.pane[1][0]) :
+            if (self.pane[0][1] < mouse_pos[1] < self.pane[1][1]):
+                return True
+        return False
+
+    def get_size(self):
+        return(self.pane)
 
 
+
+
+class Pane_Map():
+    def __init__():
+        pass
+    def Building_init(self):
+        '''
         if self.pane_type == 'map':
             self.pane_width = self.grid_area[1][0] - self.grid_area[0][0]
             self.pane_height = self.grid_area[1][1] - self.grid_area[0][1]
@@ -160,21 +110,30 @@ class Pane():
                 button.width = self.width
                 button.height = self.height
                 Append_To_Dict(BUTTON_DICT, self.pane_type, button)
+        '''
+        pass
+
+    def Move():
+        pass
+    def Buildinf_draw(self):
+        pass
+    def bg_draw(self):
+        pass
 
 
-    def IsOn (self, mouse_pos):
-        if (self.pane[0][0] < mouse_pos[0] < self.pane[1][0]) :
-            if (self.pane[0][1] < mouse_pos[1] < self.pane[1][1]):
-                return True
-
-        return False
-
-    def get_size(self):
-        return(self.pane)
-
-    def fill(self):
-        Img_Fill(self.img, self.pane, self.screen)
-
+class Building():
+    def __init__():
+        pass
+    def IsOn():
+        pass
+    def draw():
+        pass
+    def Activate():
+        pass
+    def size():
+        pass
+    def pos():
+        pass
 
 class Button():
     #Кнопки с любыми шрифтами, размерами, положением.
@@ -260,7 +219,6 @@ class Actor ():
 
     def switch_map(self, button=None):
         self.map_mode,self.map_mode_switch = self.map_mode_switch, self.map_mode
-        print(self.map_mode, self.map_mode_switch)
 
     def buy(self, button):
         self.item.buy()

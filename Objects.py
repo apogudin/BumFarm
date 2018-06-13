@@ -30,6 +30,10 @@ class BusStation():
         self.level = 1
         self.Bums = 0
         self.amount = 0
+        self.tile = [
+        [1, 1, 1],
+        [1, 1, 1]
+        ]
     def levelUp():
         self.levelUp += 1
         self.limit += 5
@@ -38,22 +42,12 @@ class BusStation():
         self.limit += 5
     def setBum(self):
         self.Bums += 1
-
-
-'''            if Button_Quit.IsOn(mouse_pos):
-                done = True
-            if menu_type == 2:
-                if Button_Buy_Station.IsOn(mouse_pos):
-                    Station.buy()
-                    Budget.outgo(Station.cost)
-            if menu_type == 1:
-                if Button_Bum_Station.IsOn(mouse_pos):
-                    if Station.amount > 0 and Station.limit > Station.Bums and Bums.amount > 0:
-                        Station.setBum()
-                        Bums.set()
-                    elif Station.limit == Station.Bums and Station.amount != 0:
-                        alert = Temporary_Text('Все остановки заняты бомжами', Alert_Event, 5000)
-                    elif Bums.amount <= 0:
-                        alert = Temporary_Text('Закончились бомжи', Alert_Event, 5000)
-                    elif Station.amount == 0:
-                        alert = Temporary_Text('Остановок нет', Alert_Event, 5000)'''
+    def rotate(self):
+        pass
+    def build():
+        #Добавление в словарь нового объекта
+        pass
+    def delete():
+        pass
+    def upgrade():
+        pass

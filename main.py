@@ -43,13 +43,10 @@ while done == False:
     #ОТРИСОВКА
     screen.fill([255,255,255])
 
-    for pane in PANE_LIST_DRAW:
-        pane.fill()
-    for group in INTERFACE_GROUPS:
-        if group in BUTTON_DICT:
-            for button in BUTTON_DICT[group]:
-                button.draw()
-
+    for pane in PANE_DRAW:
+        pane.draw_pane()
+    for pane in INTERFACE_GROUPS:
+        pane.draw_Button()
 
     Text_Alert(alert, 25, win_size[1], Font25, screen)
     Text01.draw([str(Budget.amount), str(Bums.amount), str(Station.amount)])
