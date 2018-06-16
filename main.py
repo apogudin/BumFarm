@@ -20,29 +20,35 @@ while done == False:
             if event.type == pygame.MOUSEMOTION:
                 CheckAll(ACTIVE_PANES, BUTTON_DICT, mouse_pos)
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                work_out = CheckAll_And_Action(ACTIVE_PANES, BUTTON_DICT, mouse_pos)
-                if work_out == 'EXIT':
-                    done = True
-                elif work_out is not None:
-                    TEMP_ACTIVE_PANE = PANE_DICT[work_out]
+                #print(Worker.item)
+
+                if Pane_Map.IsOn(mouse_pos):
+                    work_out = Farm.Activate(mouse_pos)
+                    if work_out is not None:
+                        TEMP_ACTIVE_PANE = PANE_DICT[work_out]
+                    else:
+                        TEMP_ACTIVE_PANE = []
+                else:
+                    work_out = CheckAll_And_Action(ACTIVE_PANES, BUTTON_DICT, mouse_pos)
+                    if work_out == 'EXIT':
+                        done = True
+                    elif work_out is not None:
+                        TEMP_ACTIVE_PANE = PANE_DICT[work_out]
 
         elif Worker.map_mode == 'building':
-            
             if event.type == pygame.MOUSEMOTION:
                 CheckAll(ACTIVE_PANES, BUTTON_DICT, mouse_pos)
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 Pane_Map.user_map_place = mouse_pos
                 if Pane_Map.IsOn(mouse_pos):
-                    print(Buildings01.WhoIsOn(mouse_pos))
-                    print(Worker.item)
-                    print(Worker.map_mode)
+                    Farm.add(mouse_pos)
                 else:
                     Worker.switch_map()
                     work_out = CheckAll_And_Action(ACTIVE_PANES, BUTTON_DICT, mouse_pos)
                     if work_out is not None:
                         TEMP_ACTIVE_PANE = PANE_DICT[work_out]
-                    print(Worker.map_mode)
-
+                Worker.switch_map()
+                print()
 
         if event.type == Time1sec:
             Budget.income(Bums.amount*10)
@@ -50,8 +56,8 @@ while done == False:
             alert = ''
 
     screen.fill([255,255,255])
-    Pane_Map.bg_draw()
-
+    Pane_Map.draw_pane()
+    Pane_Map.draw_Button()
     for pane in PANE_DRAW_LIST:
         pane.draw_pane()
     for pane in ACTIVE_PANES:
@@ -59,6 +65,11 @@ while done == False:
 
     Text_Alert(alert, 25, win_size[1], Font25, screen)
     Text01.draw([str(Budget.amount), str(Bums.amount), str(Station.amount)])
+
+    if TEMP_ACTIVE_PANE == [Pane_Menu_Building]:
+            Text02.draw([str(Worker.item.objects_dict[Worker.item_id][0])+' Бомжей',
+            str(Worker.item.objects_dict[Worker.item_id][1])+' lvl',
+            str(Worker.item.objects_dict[Worker.item_id][2])+' upgrade'])
     pygame.display.flip()
 
 pygame.quit()

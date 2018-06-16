@@ -77,6 +77,7 @@ Pane_Alert = Pane(AREA_ALERT)
 Pane_News = Pane(AREA_NEWS)
 Pane_Menu_Main = Pane(AREA_MENU, 'menu:main', AREA_MENU_MAIN_GRID)
 Pane_Menu_Shop = Pane(AREA_MENU, 'menu:shop', AREA_MENU_SHOP_GRID)
+Pane_Menu_Building = Pane(AREA_MENU, 'menu:building', AREA_MENU_SHOP_GRID)
 
 Pane_Map = Map(AREA_MAP, [20,20])
 
@@ -85,7 +86,7 @@ TEMP_ACTIVE_PANE = [Pane_Menu_Main]
 
 PANE_DRAW_LIST = [Pane_Head, Pane_Menu_Main, Pane_Alert, Pane_News, Pane_Shop]
 
-Buildings01 = Building(Worker, Pane_Map)
+Farm = Building(Worker, Pane_Map)
 
 Button_Menu = Button('Menu', Worker.switch, Bums)
 
@@ -99,6 +100,9 @@ Button_Shop22 = Button('SHOP22', Worker.switch, Bums)
 Button_Shop23 = Button('SHOP23', Worker.switch, Bums)
 Button_Shop24 = Button('SHOP24', Worker.switch, Bums)
 Button_Shop25 = Button('SHOP25', Worker.switch, Bums)
+
+Button_BLDG01 = Button('SET', Worker.set)
+Button_BLDG02 = Button('LVL', Worker.lvl)
 
 Button_Head1 = Button('', Worker.switch, Bums)
 Button_Head2 = Button('', Worker.switch, Bums)
@@ -119,26 +123,31 @@ Pane_Shop.Button_Init([Button_Shop11, Button_Shop12, Button_Shop13, Button_Shop1
 Pane_Head_Menu.Button_Init([Button_Menu],[1,1],[100,20])
 Pane_Menu_Main.Button_Init([Button_Quit, Button_Menu_Main2],[1,3],[150,25])
 Pane_Menu_Shop.Button_Init([Button_Menu_Shop1], [1,1],[100,25])
+Pane_Menu_Building.Button_Init([Button_BLDG01, Button_BLDG02], [2,1],[100,25])
+
+Pane_Map.Building_Init(Farm)
 
 Img_B_Shop = Image('Button_Shop.png', Pane_Shop.button_list)
 Img_B_Menu_Shop = Image('Button_Menu_Shop.png', Pane_Head.button_list)
 Img_B_Main = Image('Button_Main.png', Pane_Head_Menu.button_list)
 Img_B_Menu_Main = Image('Button_Menu_Main.png', Pane_Menu_Main.button_list)
 Img_B_Head = Image('Button_Head.png', Pane_Menu_Shop.button_list)
+Img_B_Menu_BLDG = Image('Button_Menu_Shop.png', Pane_Menu_Building.button_list)
 
 Img_Bg1 = Image('Color1.png', [Pane_Head, Pane_Head_Menu, Pane_Alert, Pane_Shop])
 Img_Bg2 = Image('Color2.png', [Pane_Menu_Main, Pane_Menu_Shop, Pane_News])
 Img_Map1 = Image('map.png', [Pane_Map])
 
-Img_Bg2 = Image('Build1.png', [Building1])
+Img_Bldg1 = Image('Build1.png', [BLDG1])
+Img_Bldg2 = Image('Build2.png', [BLDG2])
 
 
 Text01 = Text(Font25, [Button_Head1, Button_Head2, Button_Head3], 'type')
-
+Text02 = Text(Font25, [[850, 100], [850, 150], [850, 200]])
 
 Pane_Map.screen =screen
 Building1.font = Font12
-Building1.screen = screen
+Farm.screen = screen
 
 for text in TEXT_LIST:
     text.screen  = screen
