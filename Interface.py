@@ -8,15 +8,16 @@ from Configs import *
 import copy
 
 class Pane():
-    def __init__(self, area, grid=None):
+    def __init__(self, area, pane_type=None, grid=None):
         #для выбранного type высчитывает область: левый-верхний, правый-нижний угол
-        PANE_LIST.append(self)
         self.pane = area
         self.grid_area = grid
-        self.pane_type = type
+        self.pane_type = pane_type
         self.img = None
         self.screen = None
         self.user_map_place = None
+        Append_To_Dict(PANE_DICT, self.pane_type, self)
+
 
     def Button_Init(self, button_list, NxNy, size = [100, 150], gap = [10,10]):
         self.button_list = button_list
@@ -47,7 +48,7 @@ class Pane():
                 grid_x = 0
                 grid_y += 1
             button.pos_x, button.pos_y = Grid(size[0], size[1], NxNy[0], NxNy[1], gap[0], gap[1], self.grid_area)
-            button.pane = self.pane_type
+            button.pane_type = self.pane_type
             button.width = size[0]
             button.height = size[1]
             Append_To_Dict(BUTTON_DICT, self.pane_type, button)
@@ -70,74 +71,97 @@ class Pane():
         return(self.pane)
 
 
+class Map():
+    def __init__(self, pane, NxNy, building_list = []):
+        self.pane = pane
+        self.NxNy = NxNy
+        self.building_list = building_list
+        self.pane_width = self.pane[1][0] - self.pane[0][0]
+        self.pane_height = self.pane[1][1] - self.pane[0][1]
+        self.tile_size = 50
+        self.screen = None
+        self.img = None
 
+        self.GRID_pos = [[[i,j] for i in range(NxNy[0])] for j in range(NxNy[1])]
+        self.GRID_coo = [[[i*self.tile_size, j*self.tile_size] for i in range(NxNy[0])] for j in range(NxNy[1])]
 
-class Pane_Map():
-    def __init__():
-        pass
+        self.NULL = [0,0]
+        self.NULL_tile_draw = [0,0]
+        self.NULL_draw =  [self.pane[0][0], self.pane[1][1]]
+
+    def IsOn (self, mouse_pos):
+        if (self.pane[0][0] < mouse_pos[0] < self.pane[1][0]) :
+            if (self.pane[0][1] < mouse_pos[1] < self.pane[1][1]):
+                return True
+        return False
+
     def Building_init(self):
-        '''
-        if self.pane_type == 'map':
-            self.pane_width = self.grid_area[1][0] - self.grid_area[0][0]
-            self.pane_height = self.grid_area[1][1] - self.grid_area[0][1]
-            Nx = 8
-            Ny = 6
-            self.width = self.pane_width/Nx
-            self.height = self.pane_height/Ny
-            start_x = self.grid_area[0][0]
-            start_y = self.grid_area[0][1]
-
-            self.Map_Grid = [[[start_x + i*self.width, start_y + j*self.height]
-            for i in range(Nx+1)] for j in range(Ny+1)]
-            pos_x = None
-            pos_y = None
-            print(self.pane, self.Map_Grid)
-            for i in range(1,Nx+1):
-                if self.user_map_place[0] < self.Map_Grid[0][i][0]:
-                    pos_x = self.Map_Grid[0][i-1][0]
-                    break
-
-            for j in range(1,Ny+1):
-                if self.user_map_place[1] < self.Map_Grid[j][0][1]:
-                    pos_y = self.Map_Grid[j-1][0][1]
-                    break
-
-
-            #инициализация кнопки
-            for button in button_list:
-                button.pos_x, button.pos_y = pos_x, pos_y
-                button.pane = self.pane_type
-                button.width = self.width
-                button.height = self.height
-                Append_To_Dict(BUTTON_DICT, self.pane_type, button)
-        '''
         pass
 
-    def Move():
+    def Building_add(self, obj, pos):
+        #берём obj, напрмяую записываем в object_list и тут же obj.img - в img_list
         pass
-    def Buildinf_draw(self):
+
+    def Move(self, keys):
+        if keys[pygame.K_LEFT] and self.NULL[0] + self.pane_width <= self.tile_size*self.NxNy[0]:
+            self.NULL[0] += 2
+        if keys[pygame.K_RIGHT] and self.NULL[0] >= 2:
+            self.NULL[0] -= 2
+        if keys[pygame.K_UP] and self.NULL[1] + self.pane_height <= self.tile_size*self.NxNy[1]:
+            self.NULL[1] += 2
+        if keys[pygame.K_DOWN] and self.NULL[1] >= 2:
+            self.NULL[1] -= 2
+        self.NULL_tile_draw = [self.NULL[0]//self.tile_size, self.NULL[1]//self.tile_size]
+        self.NULL_draw = [(-1)*(self.NULL[0]%self.tile_size) + self.pane[0][0], (-1)*(self.NULL[1]%self.tile_size) + self.pane[0][1]]
+        #print (self.NULL_draw)
+
+    def Building_draw(self):
         pass
+
     def bg_draw(self):
-        pass
-
+        Img_Fill(self.img, [self.NULL_draw, self.pane[1]], self.screen)
 
 class Building():
-    def __init__():
+    def __init__(self, worker, map):
+        self.worker = worker
+        self.object_list = [[[None, None, None] for i in range(map.NxNy[0])] for j in range (map.NxNy[1]) ]
+        self.pane_type = 'build_attr'
+        self.map = map
+
+    def add (self, obj, mouse_pos):
+        pos = self.WhoIsOn(mouse_pos)[1]
+        self.object_list[pos[0]][pos[1]][0] = obj
+
+    def WhoIsOn(self, mouse_pos):
+        #берём координату мышки, определяем pos, сопоставляем объект, return pos!
+        for i in range(1,self.map.NxNy[0]+1):
+            if mouse_pos[0] < self.map.GRID_coo[0][i][0] + self.map.NULL_draw[0]:
+                pos_x = self.map.GRID_pos[0][i-1][0] + self.map.NULL_tile_draw[0]
+                break
+        for j in range(1,self.map.NxNy[1]+1):
+            if mouse_pos[1] < self.map.GRID_coo[j][0][1] + self.map.NULL_draw[1]:
+                pos_y = self.map.GRID_pos[j-1][0][1] + self.map.NULL_tile_draw[1]
+                break
+        pos = [pos_y, pos_x]
+        pos_id = str(pos_y) + ':' + str(pos_x)
+        return [pos, pos_id]
+
+    def draw_Button():
         pass
-    def IsOn():
-        pass
-    def draw():
-        pass
-    def Activate():
-        pass
+
+    def Activate(self, obj):
+        self.worker.item = obj
+        self.worker.switch(self)
+
     def size():
         pass
     def pos():
         pass
 
+
 class Button():
     #Кнопки с любыми шрифтами, размерами, положением.
-    def __init__(self, name, worker_act, item = ''):
+    def __init__(self, name, worker_act, item = None):
         self.worker_act = worker_act
         self.name = name
         self.item = item
@@ -145,7 +169,7 @@ class Button():
         self.img = None
         self.pos_x = None
         self.pos_y = None
-        self.pane = None
+        self.pane_type = None
         self.width = None
         self.height = None
         self.screen = None
@@ -211,9 +235,10 @@ class Actor ():
         self.interface_group = 'None'
         self.map_mode = 'base'
         self.map_mode_switch = 'building'
+        self.co = 0
 
     def switch(self, button):
-        self.interface_group ="menu:" + button.pane
+        self.interface_group ="menu:" + button.pane_type
         self.item = button.item
         return self.interface_group
 
@@ -223,8 +248,8 @@ class Actor ():
     def buy(self, button):
         self.item.buy()
 
-    def nothing(self, item=''):
-        return
+    def EXIT(self, item=''):
+        return 'EXIT'
 
 
 class Text():

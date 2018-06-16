@@ -5,34 +5,43 @@ from MyFunctions import *
 
 while done == False:
     clock.tick(60)
-    INTERFACE_GROUPS = CONS_INTERFACE_GROUP + TEMP_INTERFACE_GROUP
 
-    #ЭВЕНТЫ
+
+    ACTIVE_PANES = CONS_ACTIVE_PANE + TEMP_ACTIVE_PANE
+    keys = pygame.key.get_pressed()
+    mouse_pos = pygame.mouse.get_pos()
+    Pane_Map.Move(keys)
+
+
+
     for event in pygame.event.get():
-        mouse_pos = pygame.mouse.get_pos()
+
         if Worker.map_mode == 'base':
             if event.type == pygame.MOUSEMOTION:
-                CheckAll(INTERFACE_GROUPS, BUTTON_DICT, mouse_pos)
+                CheckAll(ACTIVE_PANES, BUTTON_DICT, mouse_pos)
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                out = CheckAll_And_Action(INTERFACE_GROUPS, BUTTON_DICT, mouse_pos)
-                if out is not None:
-                    TEMP_INTERFACE_GROUP = [out]
-
-                #Чтоб сейчас хоть как-то по-человечески выходить
-                if Button_Quit.IsOn(mouse_pos):
+                work_out = CheckAll_And_Action(ACTIVE_PANES, BUTTON_DICT, mouse_pos)
+                if work_out == 'EXIT':
                     done = True
+                elif work_out is not None:
+                    TEMP_ACTIVE_PANE = PANE_DICT[work_out]
 
         elif Worker.map_mode == 'building':
+            
             if event.type == pygame.MOUSEMOTION:
-                pass
+                CheckAll(ACTIVE_PANES, BUTTON_DICT, mouse_pos)
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 Pane_Map.user_map_place = mouse_pos
                 if Pane_Map.IsOn(mouse_pos):
-                    Pane_Map.Button_Init([Building1])
-                    print('if')
+                    print(Buildings01.WhoIsOn(mouse_pos))
+                    print(Worker.item)
+                    print(Worker.map_mode)
                 else:
                     Worker.switch_map()
-                    print('else')
+                    work_out = CheckAll_And_Action(ACTIVE_PANES, BUTTON_DICT, mouse_pos)
+                    if work_out is not None:
+                        TEMP_ACTIVE_PANE = PANE_DICT[work_out]
+                    print(Worker.map_mode)
 
 
         if event.type == Time1sec:
@@ -40,12 +49,12 @@ while done == False:
         if event.type == Alert_Event:
             alert = ''
 
-    #ОТРИСОВКА
     screen.fill([255,255,255])
+    Pane_Map.bg_draw()
 
-    for pane in PANE_DRAW:
+    for pane in PANE_DRAW_LIST:
         pane.draw_pane()
-    for pane in INTERFACE_GROUPS:
+    for pane in ACTIVE_PANES:
         pane.draw_Button()
 
     Text_Alert(alert, 25, win_size[1], Font25, screen)

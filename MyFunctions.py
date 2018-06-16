@@ -58,16 +58,16 @@ def Append_To_Dict(dict, key, value):
         dict[key] = [value]
 
 
-def CheckAll (group_list, dict, mouse_pos):
-    for group in group_list:
-        if group in dict:
-            for button in dict[group]:
+def CheckAll (pane_list, dict, mouse_pos):
+    for pane in pane_list:
+        if pane.pane_type in dict:
+            for button in dict[pane.pane_type]:
                 button.IsOn(mouse_pos)
 
 
-def CheckAll_And_Action (group_list, dict, mouse_pos):
-    for group in group_list:
-        if group in dict:
-            for button in dict[group]:
+def CheckAll_And_Action (pane_list, dict, mouse_pos):
+    for pane in pane_list:
+        if pane.pane_type in dict:
+            for button in dict[pane.pane_type]:
                 if button.IsOn(mouse_pos):
                     return button.Activate()

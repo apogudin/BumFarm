@@ -1,6 +1,47 @@
 from MyFunctions import *
 from Configs import *
 
+
+class BusStation():
+    #Ларёк
+    def __init__(self):
+        self.cost = 25
+        self.limit = 0
+        self.level = 1
+        self.Bums = 0
+        self.amount = 0
+        self.tile = [
+        [1, 1, 1],
+        [1, 1, 1]
+        ]
+        self.objects_dict = {}
+        self.img = None
+
+        '''
+        self.objects_dict = {
+        '0:0': [bums, limit, lvl]...
+        }
+        '''
+
+    def levelUp():
+        self.levelUp += 1
+        self.limit += 5
+    def buy(self):
+        self.amount += 1
+        self.limit += 5
+    def setBum(self):
+        self.Bums += 1
+    def rotate(self):
+        pass
+    def build():
+        #Добавление в словарь нового объекта
+        pass
+    def delete():
+        pass
+    def upgrade():
+        pass
+
+
 class Bum():
     #Все существующие бомжи#
     def __init__(self):
@@ -21,33 +62,3 @@ class Coins():
         self.amount += sum
     def outgo(self, sum):       #Расход
         self.amount -= sum
-
-class BusStation():
-    #Ларёк
-    def __init__(self):
-        self.cost = 25
-        self.limit = 0
-        self.level = 1
-        self.Bums = 0
-        self.amount = 0
-        self.tile = [
-        [1, 1, 1],
-        [1, 1, 1]
-        ]
-    def levelUp():
-        self.levelUp += 1
-        self.limit += 5
-    def buy(self):
-        self.amount += 1
-        self.limit += 5
-    def setBum(self):
-        self.Bums += 1
-    def rotate(self):
-        pass
-    def build():
-        #Добавление в словарь нового объекта
-        pass
-    def delete():
-        pass
-    def upgrade():
-        pass
