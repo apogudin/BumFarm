@@ -32,7 +32,7 @@ AREA_MENU_BUILD_GRID = [[AREA_ALERT[0][0], AREA_ALERT[0][1]-200],[screen_x, AREA
 AREA_MAP_GRID = [[0,head_h],[AREA_ALERT[0][0],AREA_ALERT[1][1]]]
 
 
-Font25 = pygame.font.SysFont('Colibri', 25)
+Font25 = pygame.font.SysFont('Colibri', 20)
 Font12 = pygame.font.SysFont('Colibri', 12)
 
 Budget = Coins()
@@ -123,16 +123,16 @@ Pane_Shop.Button_Init([Button_Shop11, Button_Shop12, Button_Shop13, Button_Shop1
 Pane_Head_Menu.Button_Init([Button_Menu],[1,1],[100,20])
 Pane_Menu_Main.Button_Init([Button_Quit, Button_Menu_Main2],[1,3],[150,25])
 Pane_Menu_Shop.Button_Init([Button_Menu_Shop1], [1,1],[100,25])
-Pane_Menu_Building.Button_Init([Button_BLDG01, Button_BLDG02], [2,1],[100,25])
+Pane_Menu_Building.Button_Init([Button_BLDG01, Button_BLDG02], [2,1],[80,25])
 
 Pane_Map.Building_Init(Farm)
 
 Img_B_Shop = Image('Button_Shop.png', Pane_Shop.button_list)
-Img_B_Menu_Shop = Image('Button_Menu_Shop.png', Pane_Head.button_list)
+Img_B_Menu_Shop = Image('Button_Menu_Shop.png',  Pane_Menu_Shop.button_list)
 Img_B_Main = Image('Button_Main.png', Pane_Head_Menu.button_list)
 Img_B_Menu_Main = Image('Button_Menu_Main.png', Pane_Menu_Main.button_list)
-Img_B_Head = Image('Button_Head.png', Pane_Menu_Shop.button_list)
-Img_B_Menu_BLDG = Image('Button_Menu_Shop.png', Pane_Menu_Building.button_list)
+Img_B_Head = Image('Button_Head.png',Pane_Head.button_list)
+Img_B_Menu_BLDG = Image('Button_Menu_Building.png', Pane_Menu_Building.button_list)
 
 Img_Bg1 = Image('Color1.png', [Pane_Head, Pane_Head_Menu, Pane_Alert, Pane_Shop])
 Img_Bg2 = Image('Color2.png', [Pane_Menu_Main, Pane_Menu_Shop, Pane_News])

@@ -203,7 +203,6 @@ class Building():
         pos = self.WhoIsOn(mouse_pos)
         obj = self.object_list[pos[0]][pos[1]][0]
         pos_id = str(pos[0]) + ':' + str(pos[1])
-        print(obj, pos_id)
         if obj is not None:
             self.worker.item = obj
             self.worker.item_id = pos_id
@@ -243,7 +242,7 @@ class Button():
     def Activate(self):
         return self.worker_act(self)
 
-    def size(self):
+    def get_size(self):
         return [self.width, self.height]
 
     def pos(self):
@@ -325,7 +324,7 @@ class Text():
         self.pos_list = pos_list
         if text_type is not None:
             self.obj_pos_list = [obj.pos() for obj in pos_list]
-            self.obj_size_list = [obj.size() for obj in pos_list]
+            self.obj_size_list = [obj.get_size() for obj in pos_list]
 
     def draw(self, text_list, event = None, duration = None):
 

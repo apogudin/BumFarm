@@ -48,7 +48,6 @@ while done == False:
                     if work_out is not None:
                         TEMP_ACTIVE_PANE = PANE_DICT[work_out]
                 Worker.switch_map()
-                print()
 
         if event.type == Time1sec:
             Budget.income(Bums.amount*10)
@@ -73,3 +72,7 @@ while done == False:
     pygame.display.flip()
 
 pygame.quit()
+
+for group in BUTTON_DICT:
+    for button in BUTTON_DICT[group]:
+        print(button.get_size(), button.pane_type)

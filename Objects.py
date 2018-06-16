@@ -24,14 +24,8 @@ class BusStation():
         '''
     def set(self, item_id):
         self.objects_dict[item_id][0] += 1
-        print ('SET!!!')
-        for key in self.objects_dict:
-            print (self.objects_dict[key])
     def lvl(self, item_id):
         self.objects_dict[item_id][1] += 1
-        print ('UPGRADE!!!')
-        for key in self.objects_dict:
-            print (self.objects_dict[key])
 
     def levelUp():
         self.levelUp += 1
