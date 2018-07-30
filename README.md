@@ -1,2 +1,2 @@
-# BumFarm
+## BumFarm
 Stupid Game
