@@ -284,8 +284,8 @@ class Actor ():
         self.item = None
         self.item_id = None
         self.interface_group = None
-        self.map_mode = 'base'
-        self.map_mode_switch = 'building'
+        self.map_mode = 'mode_base'
+        self.map_mode_switch = 'mode_constructing'
         self.co = 0
 
     def switch(self, button):

@@ -5,23 +5,16 @@ from MyFunctions import *
 
 while done == False:
     clock.tick(60)
-
-
     ACTIVE_PANES = CONS_ACTIVE_PANE + TEMP_ACTIVE_PANE
     keys = pygame.key.get_pressed()
     mouse_pos = pygame.mouse.get_pos()
     Pane_Map.Move(keys)
 
-
-
     for event in pygame.event.get():
-
-        if Worker.map_mode == 'base':
+        if Worker.map_mode == 'mode_base':
             if event.type == pygame.MOUSEMOTION:
                 CheckAll(ACTIVE_PANES, BUTTON_DICT, mouse_pos)
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                #print(Worker.item)
-
                 if Pane_Map.IsOn(mouse_pos):
                     work_out = Farm.Activate(mouse_pos)
                     if work_out is not None:
@@ -35,7 +28,7 @@ while done == False:
                     elif work_out is not None:
                         TEMP_ACTIVE_PANE = PANE_DICT[work_out]
 
-        elif Worker.map_mode == 'building':
+        elif Worker.map_mode == 'mode_constructing':
             if event.type == pygame.MOUSEMOTION:
                 CheckAll(ACTIVE_PANES, BUTTON_DICT, mouse_pos)
             elif event.type == pygame.MOUSEBUTTONDOWN:
