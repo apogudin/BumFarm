@@ -277,7 +277,7 @@ class Image():
 
     def fill(self, area):
         Img_Fill(area, self.screen)
-
+##
 
 class Actor ():
     def __init__(self):
