@@ -103,61 +103,68 @@ class Map():
         pass
 
     def Move(self, keys):
+        speed = 5
         if keys[pygame.K_RIGHT] and self.NULL[0] + self.pane_width <= self.tile_size*self.NxNy[0]:
-            self.NULL[0] += 2
+            self.NULL[0] += speed
         if keys[pygame.K_LEFT] and self.NULL[0] >= 2:
-            self.NULL[0] -= 2
+            self.NULL[0] -= speed
         if keys[pygame.K_DOWN] and self.NULL[1] + self.pane_height <= self.tile_size*self.NxNy[1]:
-            self.NULL[1] += 2
+            self.NULL[1] += speed
         if keys[pygame.K_UP] and self.NULL[1] >= 2:
-            self.NULL[1] -= 2
+            self.NULL[1] -= speed
         self.NULL_tile_draw = [self.NULL[0]//self.tile_size, self.NULL[1]//self.tile_size]
         self.NULL_draw = [(-1)*(self.NULL[0]%self.tile_size) + self.pane[0][0], (-1)*(self.NULL[1]%self.tile_size) + self.pane[0][1]]
         #print (self.NULL_draw)
 
-    def draw_Button(self):
-        self.Building.draw()
-
-    def draw_pane(self):
+    def draw(self):
         Img_Fill(self.img, [self.NULL_draw, self.pane[1]], self.screen)
-
+        self.Building.draw()
 
 class Building():
     def __init__(self, worker, map):
         self.worker = worker
-        self.object_list = [[[None, None, None] for i in range(map.NxNy[0])] for j in range (map.NxNy[1]) ]
+        self.object_list = [[[None, None, None] for i in range(map.NxNy[0])] for j in range (map.NxNy[1]) ]   #[объект, изображение, алиас, поворот?]
         self.pane_type = 'buildings'
         self.map = map
         self.screen = None
+
+    #Проверка на занятость
+    def can_build(self, mouse_pos):
+        pos = self.WhoIsOn(mouse_pos)
+        obj = self.worker.item
+        obj_size_yx = [len(obj.tile), len(obj.tile[0])]
+
+        if pos[0]+obj_size_yx[0] > self.map.NxNy[1] or pos[1]+obj_size_yx[1] > self.map.NxNy[0]:
+            return False
+        else:
+            for j in range(pos[0], pos[0]+obj_size_yx[0]):
+                for i in range(pos[1], pos[1]+obj_size_yx[1]):
+                    if self.object_list[j][i][0] is not None:
+                        return False
+        return True
 
     def add (self, mouse_pos):
         pos = self.WhoIsOn(mouse_pos)
         obj = self.worker.item
         obj_size_yx = [len(obj.tile), len(obj.tile[0])]
 
-        #Проверка на занятость
-        if pos[0]+obj_size_yx[0] > self.map.NxNy[1] or pos[1]+obj_size_yx[1] > self.map.NxNy[0]:
-            print ('BORDER!')
-            return
+        #Записали в объект новый элемент, например '0:0': [bums, limit, lvl]
+        item_id=''
         for j in range(pos[0], pos[0]+obj_size_yx[0]):
             for i in range(pos[1], pos[1]+obj_size_yx[1]):
-                if self.object_list[j][i][0] is not None:
-                    print('ENGAGED')
-                    return
+                item_id += '_' + str(j) + ':' + str(i) + '_'
+        obj.objects_dict[item_id] = {}
+        obj.set_default(item_id)
 
         #Записали в массив новый объект
         for j in range(obj_size_yx[0]):
             for i in range(obj_size_yx[1]):
                 if obj.tile[j][i]:
                     self.object_list[pos[0]+j][pos[1]+i][0] = obj
+                    self.object_list[pos[0]+j][pos[1]+i][2] = item_id
         self.object_list[pos[0]][pos[1]][1] = obj.img
 
-        #Записали в объект новый элемент
-        default = [0, 1, None]
-        for j in range(pos[0], pos[0]+obj_size_yx[0]):
-            for i in range(pos[1], pos[1]+obj_size_yx[1]):
-                id = str(j) + ':' + str(i)
-                obj.objects_dict[id] = default
+
 
     def WhoIsOn(self, mouse_pos): #хуйня, переписать
         for i in range(1,self.map.NxNy[0]+1): #хуйня какая-то. Это все клетки чтоли проверяются???
@@ -186,15 +193,16 @@ class Building():
                     if self.object_list[j][i][1] is not None:
                         pos_x = (i - self.map.NULL_tile_draw[0]) * self.map.tile_size + self.map.NULL_draw[0]
                         pos_y = (j - self.map.NULL_tile_draw[1]) * self.map.tile_size + self.map.NULL_draw[1]
-                        self.object_list[j][i][1].draw(pos_x, pos_y, [1,2])
+                        self.object_list[j][i][1].draw(pos_x, pos_y, [2,2], [1, 0])
 
     def Activate(self, mouse_pos):
         pos = self.WhoIsOn(mouse_pos)
         obj = self.object_list[pos[0]][pos[1]][0]
-        pos_id = str(pos[0]) + ':' + str(pos[1])
-        if obj is not None:
+        if obj == 'Stone':
+            pass
+        elif obj is not None:
             self.worker.item = obj
-            self.worker.item_id = pos_id
+            self.worker.item_id = self.object_list[pos[0]][pos[1]][2]
             return self.worker.switch_build(self)
 
 

@@ -3,7 +3,7 @@ from Configs import *
 
 
 class BusStation():
-    #Ларёк
+    #Здание - остановка
     def __init__(self):
         self.cost = 25
         self.limit = 0
@@ -19,13 +19,18 @@ class BusStation():
 
         '''
         self.objects_dict = {
-        '0:0': [bums, limit, lvl]...
+        '0:0': {'bums':0, 'limit': 10,'lvl': 1},
+        '0:0': {'bums':0, 'limit': 10,'lvl': 1},
+        '24:13': {'bums':13, 'limit': 10,'lvl': 133},
         }
         '''
+    def set_default(self, item_id):
+        self.objects_dict[item_id].update({'bums':0, 'limit': 10,'lvl': 1})
     def set(self, item_id):
-        self.objects_dict[item_id][0] += 1
+        self.objects_dict[item_id]['bums'] += 1
     def lvl(self, item_id):
-        self.objects_dict[item_id][1] += 1
+        self.objects_dict[item_id]['lvl'] += 1
+        self.objects_dict[item_id]['limit'] += 10
 
     def levelUp():
         self.levelUp += 1

@@ -1,7 +1,7 @@
 import math
-
+import random
+#Проверка: достаточно ли денег
 def YouBum(have, need):
-    #Проверка: достаточно ли денег
     if have.amount >= need.cost:
         return
     else:
@@ -9,28 +9,29 @@ def YouBum(have, need):
         have.income(100)
         return
 
+#Выводит текст в зоне ресурсов
 def Text_Resourses (text, amount, txt_x, font, screen, interval, position):
-    #Выводит текст в зоне ресурсов
     txt_y = position * interval
     text = font.render(text, True, [0, 0, 0])
     amt = font.render(str(amount), True, [0, 0, 0])
     screen.blit(text, [txt_x, txt_y])
     screen.blit(amt, [txt_x+150, txt_y])
 
+
+#Выводит текст в зоне алертов
 def Text_Alert (message, font_size, screen_y, font, screen):
-    #Выводит текст в зоне алертов
     txt_x = 10
     txt_y = screen_y - font_size
     text = font.render(message, True, [0, 0, 0])
     screen.blit(text, [txt_x, txt_y])
 
+#Временный текст, возвращает текст и заводит таймер
 def Temporary_Text (text, event, duration):
-    #Временный текст, возвращает текст и заводит таймер
     pygame.time.set_timer(event, duration)
     return text
 
+#Замостить изображением прямоугольник по двум точкам: лево-верх и право-низ
 def Img_Fill(Image, area, screen):
-    #Замостить изображением прямоугольник по двум точкам: лево-верх и право-низ
     img = Image.img
     width = Image.width
     height = Image.height
@@ -50,24 +51,31 @@ def Img_Fill(Image, area, screen):
                 crop_x = total_x - width*j
             screen.blit(img, [Xi, Yi],(0,0,crop_x,crop_y))
 
-
+#Добавление объекта в словарь
 def Append_To_Dict(dict, key, value):
     if key in dict:
         dict[key].append(value)
     else:
         dict[key] = [value]
 
-
+#Пробегаемся по всем объектам (поправить: только по определённой панели), вызываем у них IsOn
 def CheckAll (pane_list, dict, mouse_pos):
     for pane in pane_list:
         if pane.pane_type in dict:
             for button in dict[pane.pane_type]:
                 button.IsOn(mouse_pos)
 
-
+#Пробегаемся по всем объектам (поправить: только по определённой панели) и активируем
 def CheckAll_And_Action (pane_list, dict, mouse_pos):
     for pane in pane_list:
         if pane.pane_type in dict:
             for button in dict[pane.pane_type]:
                 if button.IsOn(mouse_pos):
                     return button.Activate()
+
+def rand_stones (object_list, img, N):
+    for i in range(N):
+        R_row = random.randrange(0, 19, 1)
+        R_column = random.randrange(0, 19, 1)
+        object_list[R_row][R_column][0] = 'Stone'
+        object_list[R_row][R_column][1] = img
