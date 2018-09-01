@@ -9,6 +9,8 @@ while done == False:
     keys = pygame.key.get_pressed()
     mouse_pos = pygame.mouse.get_pos()
     Pane_Map.Move(keys)
+    screen.fill([255,255,255])
+    Pane_Map.draw_pane()
 
     for event in pygame.event.get():
         if Worker.map_mode == 'mode_base':
@@ -46,14 +48,19 @@ while done == False:
             Budget.income(Bums.amount*10)
         if event.type == Alert_Event:
             alert = ''
+    if  Worker.map_mode == 'mode_constructing':
+        pos_y, pos_x = Farm.WhoIsOn(mouse_pos)
+        pos_x = (pos_x - Pane_Map.NULL_tile_draw[0]) * Pane_Map.tile_size + Pane_Map.NULL_draw[0]
+        pos_y = (pos_y - Pane_Map.NULL_tile_draw[1]) * Pane_Map.tile_size + Pane_Map.NULL_draw[1]
+        Worker.item.img.draw(pos_x, pos_y, [1,2])
 
-    screen.fill([255,255,255])
-    Pane_Map.draw_pane()
     Pane_Map.draw_Button()
     for pane in PANE_DRAW_LIST:
         pane.draw_pane()
     for pane in ACTIVE_PANES:
         pane.draw_Button()
+
+
 
     Text_Alert(alert, 25, win_size[1], Font25, screen)
     Text01.draw([str(Budget.amount), str(Bums.amount), str(Station.amount)])

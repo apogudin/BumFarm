@@ -18,7 +18,6 @@ class Pane():
         self.user_map_place = None
         Append_To_Dict(PANE_DICT, self.pane_type, self)
 
-
     def Button_Init(self, button_list, NxNy, size = [100, 150], gap = [10,10]):
         self.button_list = button_list
 
@@ -122,6 +121,7 @@ class Map():
     def draw_pane(self):
         Img_Fill(self.img, [self.NULL_draw, self.pane[1]], self.screen)
 
+
 class Building():
     def __init__(self, worker, map):
         self.worker = worker
@@ -129,7 +129,6 @@ class Building():
         self.pane_type = 'buildings'
         self.map = map
         self.screen = None
-
 
     def add (self, mouse_pos):
         pos = self.WhoIsOn(mouse_pos)
@@ -160,10 +159,8 @@ class Building():
                 id = str(j) + ':' + str(i)
                 obj.objects_dict[id] = default
 
-    def WhoIsOn(self, mouse_pos):
-
-
-        for i in range(1,self.map.NxNy[0]+1):
+    def WhoIsOn(self, mouse_pos): #хуйня, переписать
+        for i in range(1,self.map.NxNy[0]+1): #хуйня какая-то. Это все клетки чтоли проверяются???
             if mouse_pos[0] < self.map.GRID_coo[0][i][0] + self.map.NULL_draw[0]:
                 #Указатель на абсолютную позицию в массиве
                 #if request == 'pos_tile' or request == 'pos_id':
@@ -179,14 +176,6 @@ class Building():
                 #if request == 'pos_coordinates':
                 #    pos_y = self.map.GRID_coo[j-1][0][1] + self.map.NULL_draw[1]
                 break
-        '''
-        if request == 'pos_id':
-            return str(pos_y) + ':' + str(pos_x)
-        elif request == 'obj':
-            j = self.WhoIsOn('pos_tile', mouse_pos)[0]
-            i = self.WhoIsOn('pos_tile', mouse_pos)[1]
-            return self.object_list[j][i][0]
-        '''
         return [pos_y, pos_x]
 
     def draw(self):
