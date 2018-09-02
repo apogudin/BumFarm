@@ -10,10 +10,7 @@ class BusStation():
         self.level = 1
         self.Bums = 0
         self.amount = 0
-        self.tile = [
-        [1, 1, 1],
-        [1, 1, 1]
-        ]
+        self.tile_to_default()
         self.objects_dict = {}
         self.img = None
 
@@ -24,6 +21,12 @@ class BusStation():
         '24:13': {'bums':13, 'limit': 10,'lvl': 133},
         }
         '''
+    def tile_to_default(self):
+        self.tile = [
+        [1, 1, 1],
+        [1, 1, 1],
+        [0, 0, 0]
+        ]
     def set_default(self, item_id):
         self.objects_dict[item_id].update({'bums':0, 'limit': 10,'lvl': 1})
     def set(self, item_id):

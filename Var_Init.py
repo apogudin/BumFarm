@@ -54,7 +54,7 @@ BLDG10 = BusStation()
 #Остальные объекты
 Budget = Coins()
 Bums = Bum()
-Farm = Building(Worker, Pane_Map) #массив со зданиями
+Farm_RUS = Farm(Worker, Pane_Map) #массив со зданиями
 
 #Шрифты
 Font25 = pygame.font.SysFont('Colibri', 20)
@@ -104,7 +104,7 @@ Pane_Head_Menu.Button_Init([Button_Menu],[1,1],[100,20])
 Pane_Menu_Main.Button_Init([Button_Quit, Button_Menu_Main2],[1,3],[150,25])
 Pane_Menu_Shop.Button_Init([Button_Menu_Shop1], [1,1],[100,25])
 Pane_Menu_Building.Button_Init([Button_BLDG01, Button_BLDG02], [2,1],[80,25])
-Pane_Map.Building_Init(Farm)
+Pane_Map.Building_Init(Farm_RUS)
 
 #Загружаем изображения и записываем их в объекты
 #Фон панелей
@@ -142,7 +142,7 @@ PANE_DRAW_LIST = [Pane_Head, Pane_Menu_Main, Pane_Alert, Pane_News, Pane_Shop]
 
 #Записываем во все объекты общие переменные
 Pane_Map.screen = screen
-Farm.screen = screen
+Farm_RUS.screen = screen
 
 for text in TEXT_LIST:
     text.screen  = screen

@@ -104,13 +104,13 @@ class Map():
 
     def Move(self, keys):
         speed = 5
-        if keys[pygame.K_RIGHT] and self.NULL[0] + self.pane_width <= self.tile_size*self.NxNy[0]:
+        if (keys[pygame.K_RIGHT] or keys[pygame.K_d]) and self.NULL[0] + self.pane_width <= self.tile_size*self.NxNy[0]:
             self.NULL[0] += speed
-        if keys[pygame.K_LEFT] and self.NULL[0] >= 2:
+        if (keys[pygame.K_LEFT] or keys[pygame.K_a]) and self.NULL[0] >= 2:
             self.NULL[0] -= speed
-        if keys[pygame.K_DOWN] and self.NULL[1] + self.pane_height <= self.tile_size*self.NxNy[1]:
+        if (keys[pygame.K_DOWN] or keys[pygame.K_s]) and self.NULL[1] + self.pane_height <= self.tile_size*self.NxNy[1]:
             self.NULL[1] += speed
-        if keys[pygame.K_UP] and self.NULL[1] >= 2:
+        if (keys[pygame.K_UP] or keys[pygame.K_w]) and self.NULL[1] >= 2:
             self.NULL[1] -= speed
         self.NULL_tile_draw = [self.NULL[0]//self.tile_size, self.NULL[1]//self.tile_size]
         self.NULL_draw = [(-1)*(self.NULL[0]%self.tile_size) + self.pane[0][0], (-1)*(self.NULL[1]%self.tile_size) + self.pane[0][1]]
@@ -120,10 +120,11 @@ class Map():
         Img_Fill(self.img, [self.NULL_draw, self.pane[1]], self.screen)
         self.Building.draw()
 
-class Building():
+#Хранит информацию о каждой клетке
+class Farm():
     def __init__(self, worker, map):
         self.worker = worker
-        self.object_list = [[[None, None, None] for i in range(map.NxNy[0])] for j in range (map.NxNy[1]) ]   #[объект, изображение, алиас, поворот?]
+        self.tile_info = [[{'obj': None, 'img': [], 'id': None, 'rotate': None} for i in range(map.NxNy[0])] for j in range (map.NxNy[1]) ]   #[объект, изображение, алиас, поворот?]
         self.pane_type = 'buildings'
         self.map = map
         self.screen = None
@@ -131,38 +132,42 @@ class Building():
     #Проверка на занятость
     def can_build(self, mouse_pos):
         pos = self.WhoIsOn(mouse_pos)
-        obj = self.worker.item
-        obj_size_yx = [len(obj.tile), len(obj.tile[0])]
-
-        if pos[0]+obj_size_yx[0] > self.map.NxNy[1] or pos[1]+obj_size_yx[1] > self.map.NxNy[0]:
-            return False
-        else:
-            for j in range(pos[0], pos[0]+obj_size_yx[0]):
-                for i in range(pos[1], pos[1]+obj_size_yx[1]):
-                    if self.object_list[j][i][0] is not None:
+        obj_size = len(self.worker.item.tile)
+        obj_j, obj_i = 0, 0
+        for j in range(pos[0], pos[0]+obj_size):
+            for i in range(pos[1], pos[1]+obj_size):
+                if self.worker.item.tile[obj_j][obj_i]:
+                    if pos[0]+obj_j >= self.map.NxNy[1] or pos[1]+obj_i >= self.map.NxNy[0]:
                         return False
+                    elif self.tile_info[j][i]['obj'] is not None:
+                        return False
+                obj_i += 1
+            obj_i = 0
+            obj_j += 1
         return True
 
     def add (self, mouse_pos):
         pos = self.WhoIsOn(mouse_pos)
         obj = self.worker.item
-        obj_size_yx = [len(obj.tile), len(obj.tile[0])]
-
+        obj_size = len(self.worker.item.tile)
         #Записали в объект новый элемент, например '0:0': [bums, limit, lvl]
         item_id=''
-        for j in range(pos[0], pos[0]+obj_size_yx[0]):
-            for i in range(pos[1], pos[1]+obj_size_yx[1]):
+        for j in range(pos[0], pos[0]+obj_size):
+            for i in range(pos[1], pos[1]+obj_size):
                 item_id += '_' + str(j) + ':' + str(i) + '_'
         obj.objects_dict[item_id] = {}
         obj.set_default(item_id)
 
         #Записали в массив новый объект
-        for j in range(obj_size_yx[0]):
-            for i in range(obj_size_yx[1]):
+        for j in range(obj_size):
+            for i in range(obj_size):
                 if obj.tile[j][i]:
-                    self.object_list[pos[0]+j][pos[1]+i][0] = obj
-                    self.object_list[pos[0]+j][pos[1]+i][2] = item_id
-        self.object_list[pos[0]][pos[1]][1] = obj.img
+                    self.tile_info[pos[0]+j][pos[1]+i]['obj'] = obj
+                    self.tile_info[pos[0]+j][pos[1]+i]['id'] = item_id
+        self.tile_info[pos[0]][pos[1]]['img'].append(obj.img)
+        self.tile_info[pos[0]][pos[1]]['rotate'] = [3,self.worker.item_rotate]
+        self.worker.item_rotate = 0
+        self.worker.item.tile_to_default()
 
 
 
@@ -189,20 +194,20 @@ class Building():
         max_bldg_size = 2
         for j in range(self.map.NULL_tile_draw[1]-max_bldg_size, self.map.NULL_tile_draw[1]+self.map.tile_visible_NxNy[1]+1):
             for i in range(self.map.NULL_tile_draw[0]-max_bldg_size, self.map.NULL_tile_draw[0]+self.map.tile_visible_NxNy[0]+1):
-                if i < self.map.NxNy[0] and j < self.map.NxNy[1]:
-                    if self.object_list[j][i][1] is not None:
-                        pos_x = (i - self.map.NULL_tile_draw[0]) * self.map.tile_size + self.map.NULL_draw[0]
-                        pos_y = (j - self.map.NULL_tile_draw[1]) * self.map.tile_size + self.map.NULL_draw[1]
-                        self.object_list[j][i][1].draw(pos_x, pos_y, [2,2], [1, 0])
+                if (i < self.map.NxNy[0] and j < self.map.NxNy[1]) and self.tile_info[j][i]['img'] is not None:
+                    pos_x = (i - self.map.NULL_tile_draw[0]) * self.map.tile_size + self.map.NULL_draw[0]
+                    pos_y = (j - self.map.NULL_tile_draw[1]) * self.map.tile_size + self.map.NULL_draw[1]
+                    for image in self.tile_info[j][i]['img']:
+                        image.draw(pos_x, pos_y, [4,4], self.tile_info[j][i]['rotate'])
 
     def Activate(self, mouse_pos):
         pos = self.WhoIsOn(mouse_pos)
-        obj = self.object_list[pos[0]][pos[1]][0]
+        obj = self.tile_info[pos[0]][pos[1]]['obj']
         if obj == 'Stone':
             pass
         elif obj is not None:
             self.worker.item = obj
-            self.worker.item_id = self.object_list[pos[0]][pos[1]][2]
+            self.worker.item_id = self.tile_info[pos[0]][pos[1]]['id']
             return self.worker.switch_build(self)
 
 
@@ -259,8 +264,8 @@ class Image():
     def draw(self, pos_x, pos_y, Nxy = [1,1], elem = [0,0]):
         crop_width = self.width/Nxy[0]
         crop_height = self.height/Nxy[1]
-        crop_pos_x = crop_width*elem[0]
-        crop_pos_y = crop_height*elem[1]
+        crop_pos_x = crop_width*elem[1]
+        crop_pos_y = crop_height*elem[0]
         self.screen.blit(self.img, [pos_x, pos_y],(crop_pos_x,crop_pos_y,crop_width,crop_height))
 
 
@@ -268,7 +273,7 @@ class Image():
         if state == 'off':
             elem = [0,0]
         elif state == 'on':
-            elem = [0,1]
+            elem = [1,0]
         self.draw(pos_x, pos_y, [1,2], elem)
 
 
@@ -280,10 +285,12 @@ class Actor ():
     def __init__(self):
         self.item = None
         self.item_id = None
+        self.item_rotate = 0
         self.interface_group = None
         self.map_mode = 'mode_base'
         self.map_mode_switch = 'mode_constructing'
         self.co = 0
+
 
     def switch(self, button):
         self.interface_group ="menu:" + button.pane_type

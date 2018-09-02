@@ -77,5 +77,12 @@ def rand_stones (object_list, img, N):
     for i in range(N):
         R_row = random.randrange(0, 19, 1)
         R_column = random.randrange(0, 19, 1)
-        object_list[R_row][R_column][0] = 'Stone'
-        object_list[R_row][R_column][1] = img
+        object_list[R_row][R_column]['obj'] = 'Stone'
+        object_list[R_row][R_column]['img'] = [img]
+        object_list[R_row][R_column]['rotate'] = [0, 0]
+
+def rotate_build(matrix, right = False):
+    if right:
+        return[list(reversed(col)) for col in zip(*matrix)]
+    else:
+        return[list(col) for col in reversed(list(zip(*matrix)))]
