@@ -1,5 +1,6 @@
 import math
 import random
+
 #Проверка: достаточно ли денег
 def YouBum(have, need):
     if have.amount >= need.cost:
@@ -16,7 +17,6 @@ def Text_Resourses (text, amount, txt_x, font, screen, interval, position):
     amt = font.render(str(amount), True, [0, 0, 0])
     screen.blit(text, [txt_x, txt_y])
     screen.blit(amt, [txt_x+150, txt_y])
-
 
 #Выводит текст в зоне алертов
 def Text_Alert (message, font_size, screen_y, font, screen):
@@ -73,13 +73,7 @@ def CheckAll_And_Action (pane_list, dict, mouse_pos):
                 if button.IsOn(mouse_pos):
                     return button.Activate()
 
-def rand_stones (object_list, img, N):
-    for i in range(N):
-        R_row = random.randrange(0, 19, 1)
-        R_column = random.randrange(0, 19, 1)
-        object_list[R_row][R_column]['obj'] = 'Stone'
-        object_list[R_row][R_column]['img'] = [img]
-        object_list[R_row][R_column]['rotate'] = [0, 0]
+
 
 def rotate_build(matrix, right = False):
     if right:

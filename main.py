@@ -3,7 +3,7 @@ from Var_Init import *
 from Interface import *
 from MyFunctions import *
 
-rand_stones(Farm_RUS.tile_info, Img_Stone, 20)
+Obstacle_Stones.rand_stones(Farm_RUS.tile_info, 20)
 
 while done == False:
     clock.tick(60)
@@ -22,7 +22,16 @@ while done == False:
                 if Pane_Map.IsOn(mouse_pos):
                     Worker_Output = Farm_RUS.Activate(mouse_pos)
                     if Worker_Output is not None:
+                        create_buttons(Worker.item_state['item'].buttons_dict, IMAGE_DICT,[3,2],[80,120])
                         TEMP_ACTIVE_PANE = PANE_DICT[Worker_Output]
+                        for button in BUTTON_DICT["menu:building"]:
+                            button.screen = screen
+                            button.font = Font12
+                            button.Worker = Worker
+                        for image in IMAGE_DICT["menu:building"]:
+                            image.screen = screen
+
+
                     else:
                         TEMP_ACTIVE_PANE = []
                 else:
@@ -38,10 +47,10 @@ while done == False:
                 CheckAll(ACTIVE_PANES, BUTTON_DICT, mouse_pos)
             elif keys[pygame.K_r]:
                 Worker.item_rotate = (Worker.item_rotate+1) % 4
-                Worker.item.tile = rotate_build(Worker.item.tile, True)
+                Worker.item_state['item'].tile = rotate_build(Worker.item_state['item'].tile, True)
             elif keys[pygame.K_t]:
                 Worker.item_rotate = (Worker.item_rotate+3) % 4
-                Worker.item.tile = rotate_build(Worker.item.tile)
+                Worker.item_state['item'].tile = rotate_build(Worker.item_state['item'].tile)
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 Pane_Map.user_map_place = mouse_pos
@@ -59,27 +68,29 @@ while done == False:
             alert = ''
 
     #"Призрак" при строительстве
-    if  Worker.map_mode == 'mode_constructing' and hasattr(Worker.item, 'img') and Pane_Map.IsOn(mouse_pos):
+    if  Worker.map_mode == 'mode_constructing' and hasattr(Worker.item_state['item'], 'img') and Pane_Map.IsOn(mouse_pos):
         pos_y, pos_x = Farm_RUS.WhoIsOn(mouse_pos)
         pos_x = (pos_x - Pane_Map.NULL_tile_draw[0]) * Pane_Map.tile_size + Pane_Map.NULL_draw[0]
         pos_y = (pos_y - Pane_Map.NULL_tile_draw[1]) * Pane_Map.tile_size + Pane_Map.NULL_draw[1]
         if Farm_RUS.can_build(mouse_pos):
-            Worker.item.img.draw(pos_x, pos_y, [4,4],[1,Worker.item_rotate])
+            Worker.item_state['item'].img.draw(pos_x, pos_y, [4,4],[1,Worker.item_rotate])
         else:
-            Worker.item.img.draw(pos_x, pos_y, [4,4],[0,Worker.item_rotate])
+            Worker.item_state['item'].img.draw(pos_x, pos_y, [4,4],[0,Worker.item_rotate])
 
     for pane in PANE_DRAW_LIST:
         pane.draw_pane()
     for pane in ACTIVE_PANES:
         pane.draw_Button()
 
+
     Text_Alert(alert, 25, win_size[1], Font25, screen)
-    Text01.draw([str(Budget.amount), str(Bums.amount), str(Station.amount)])
+    Text01.draw([str(Budget.amount), str(Bums.amount), str(Bums.amount)])
+
 
     if TEMP_ACTIVE_PANE == [Pane_Menu_Building]:
-            Text02.draw([str(Worker.item.objects_dict[Worker.item_id]['bums'])+' бомжей',
-            str(Worker.item.objects_dict[Worker.item_id]['limit'])+' лимит бомжей',
-            str(Worker.item.objects_dict[Worker.item_id]['lvl'])+' уровень'])
+            Text02.draw([str(Worker.item_state['item'].objects_dict[Worker.item_state['item_id']]['bums'])+' бомжей',
+            str(Worker.item_state['item'].objects_dict[Worker.item_state['item_id']]['limit'])+' лимит бомжей',
+            str(Worker.item_state['item'].objects_dict[Worker.item_state['item_id']]['lvl'])+' уровень'])
     pygame.display.flip()
 
 pygame.quit()

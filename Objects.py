@@ -2,9 +2,11 @@ from MyFunctions import *
 from Configs import *
 
 
+
+
 class BusStation():
     #Здание - остановка
-    def __init__(self):
+    def __init__(self, pane):
         self.cost = 25
         self.limit = 0
         self.level = 1
@@ -13,14 +15,23 @@ class BusStation():
         self.tile_to_default()
         self.objects_dict = {}
         self.img = None
-
-        '''
-        self.objects_dict = {
-        '0:0': {'bums':0, 'limit': 10,'lvl': 1},
-        '0:0': {'bums':0, 'limit': 10,'lvl': 1},
-        '24:13': {'bums':13, 'limit': 10,'lvl': 133},
+        self.buttons_dict = {
+            'pane': pane,
+            'image': 'Button_Menu_Shop.png',
+            'buttons': [
+            {
+                'name': 'BUY',
+                'action': self.set,
+                'item': self,
+            },
+            {
+                'name': 'LEVEL',
+                'action': self.lvl,
+                'item': self,
+            }
+            ]
         }
-        '''
+
     def tile_to_default(self):
         self.tile = [
         [1, 1, 1],
@@ -29,11 +40,14 @@ class BusStation():
         ]
     def set_default(self, item_id):
         self.objects_dict[item_id].update({'bums':0, 'limit': 10,'lvl': 1})
-    def set(self, item_id):
-        self.objects_dict[item_id]['bums'] += 1
-    def lvl(self, item_id):
-        self.objects_dict[item_id]['lvl'] += 1
-        self.objects_dict[item_id]['limit'] += 10
+
+
+    def set(self, item_state):
+        self.objects_dict[item_state['item_id']]['bums'] += 1
+
+    def lvl(self, item_state):
+        self.objects_dict[item_state['item_id']]['lvl'] += 1
+        self.objects_dict[item_state['item_id']]['limit'] += 10
 
     def levelUp():
         self.levelUp += 1

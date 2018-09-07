@@ -41,6 +41,10 @@ class Pane():
         #Записываем в кнопки их координаты
         grid_x = 0
         grid_y = 0
+
+        if self.pane_type == 'menu:building':
+            BUTTON_DICT['menu:building'] = []
+
         for button in button_list:
             i = button_list.index(button)
             if ((i+1)-(grid_y*NxNy[0])) > NxNy[0]:
@@ -50,6 +54,7 @@ class Pane():
             button.pane_type = self.pane_type
             button.width = size[0]
             button.height = size[1]
+
             Append_To_Dict(BUTTON_DICT, self.pane_type, button)
             grid_x += 1
 
@@ -95,12 +100,12 @@ class Map():
                 return True
         return False
 
-    def Building_Init(self,building):
-        self.Building = building
+#    def Building_Init(self,building):
+#        self.Building = building
 
-    def Building_add(self, obj, pos):
-        #берём obj, напрмяую записываем в object_list и тут же obj.img - в img_list
-        pass
+#    def Building_add(self, obj, pos):
+#        #берём obj, напрмяую записываем в object_list и тут же obj.img - в img_list
+#        pass
 
     def Move(self, keys):
         speed = 5
@@ -114,7 +119,6 @@ class Map():
             self.NULL[1] -= speed
         self.NULL_tile_draw = [self.NULL[0]//self.tile_size, self.NULL[1]//self.tile_size]
         self.NULL_draw = [(-1)*(self.NULL[0]%self.tile_size) + self.pane[0][0], (-1)*(self.NULL[1]%self.tile_size) + self.pane[0][1]]
-        #print (self.NULL_draw)
 
     def draw(self):
         Img_Fill(self.img, [self.NULL_draw, self.pane[1]], self.screen)
@@ -127,16 +131,16 @@ class Farm():
         self.tile_info = [[{'obj': None, 'img': [], 'id': None, 'rotate': None} for i in range(map.NxNy[0])] for j in range (map.NxNy[1]) ]   #[объект, изображение, алиас, поворот?]
         self.pane_type = 'buildings'
         self.map = map
-        self.screen = None
+        map.Building = self
 
     #Проверка на занятость
     def can_build(self, mouse_pos):
         pos = self.WhoIsOn(mouse_pos)
-        obj_size = len(self.worker.item.tile)
+        obj_size = len(self.worker.item_state['item'].tile)
         obj_j, obj_i = 0, 0
         for j in range(pos[0], pos[0]+obj_size):
             for i in range(pos[1], pos[1]+obj_size):
-                if self.worker.item.tile[obj_j][obj_i]:
+                if self.worker.item_state['item'].tile[obj_j][obj_i]:
                     if pos[0]+obj_j >= self.map.NxNy[1] or pos[1]+obj_i >= self.map.NxNy[0]:
                         return False
                     elif self.tile_info[j][i]['obj'] is not None:
@@ -148,8 +152,8 @@ class Farm():
 
     def add (self, mouse_pos):
         pos = self.WhoIsOn(mouse_pos)
-        obj = self.worker.item
-        obj_size = len(self.worker.item.tile)
+        obj = self.worker.item_state['item']
+        obj_size = len(self.worker.item_state['item'].tile)
         #Записали в объект новый элемент, например '0:0': [bums, limit, lvl]
         item_id=''
         for j in range(pos[0], pos[0]+obj_size):
@@ -167,9 +171,7 @@ class Farm():
         self.tile_info[pos[0]][pos[1]]['img'].append(obj.img)
         self.tile_info[pos[0]][pos[1]]['rotate'] = [3,self.worker.item_rotate]
         self.worker.item_rotate = 0
-        self.worker.item.tile_to_default()
-
-
+        self.worker.item_state['item'].tile_to_default()
 
     def WhoIsOn(self, mouse_pos): #хуйня, переписать
         for i in range(1,self.map.NxNy[0]+1): #хуйня какая-то. Это все клетки чтоли проверяются???
@@ -206,26 +208,27 @@ class Farm():
         if obj == 'Stone':
             pass
         elif obj is not None:
-            self.worker.item = obj
-            self.worker.item_id = self.tile_info[pos[0]][pos[1]]['id']
+            self.worker.item_state['item'] = obj
+            self.worker.item_state['item_id'] = self.tile_info[pos[0]][pos[1]]['id']
             return self.worker.switch_build(self)
 
 
 class Button():
     #Кнопки с любыми шрифтами, размерами, положением.
-    def __init__(self, name, worker_act, item = None):
-        self.worker_act = worker_act
+    def __init__(self, name, action, item = None):
+        self.action = action
         self.name = name
         self.item = item
         self.state = 'off'
-        self.img = None
-        self.pos_x = None
-        self.pos_y = None
-        self.pane_type = None
-        self.width = None
-        self.height = None
-        self.screen = None
-        self.font = None
+        self.params = {'item_id': None}
+        #self.img = None
+        #self.pos_x = None
+        #self.pos_y = None
+        #self.pane_type = None
+        #self.width = None
+        #self.height = None
+        #self.screen = None
+        #self.font = None
 
     def IsOn (self, mouse_pos):
         if (self.pos_x < mouse_pos[0] < self.pos_x + self.width) :
@@ -242,7 +245,8 @@ class Button():
         self.screen.blit(text, (self.pos_x + (self.width/2 - text.get_width()/2), self.pos_y +(self.height/2 - text.get_height()/2)))
 
     def Activate(self):
-        return self.worker_act(self)
+        self.Worker.item_state['button'] = self
+        return self.action(self.Worker.item_state)
 
     def get_size(self):
         return [self.width, self.height]
@@ -250,14 +254,20 @@ class Button():
     def pos(self):
         return [self.pos_x, self.pos_y]
 
-
+#Для более удобной работы с изображениями.
+#Object_list должен содержать объекты, пренадлежащие одной группе
 class Image():
     def __init__(self, image, object_list = [], folder = 'images'):
-        IMAGE_LIST.append(self)
+        if hasattr(object_list[0], 'pane_type'):
+            if object_list[0].pane_type not in IMAGE_DICT:
+                IMAGE_DICT[object_list[0].pane_type] = []
+            IMAGE_DICT[object_list[0].pane_type].append(self)
+        else:
+            IMAGE_DICT['No pane_type'].append(self)
+
         self.img = pygame.image.load(os.path.join(folder,image))
         self.width = self.img.get_width()
         self.height = self.img.get_height()
-        self.screen = None
         for obj in object_list:
             obj.img = self
 
@@ -285,16 +295,20 @@ class Actor ():
     def __init__(self):
         self.item = None
         self.item_id = None
+        self.item_state = {
+            'item': None,
+            'item_id':None,
+            'button': None,
+        }
         self.item_rotate = 0
         self.interface_group = None
         self.map_mode = 'mode_base'
         self.map_mode_switch = 'mode_constructing'
-        self.co = 0
+        #self.co = 0
 
-
-    def switch(self, button):
-        self.interface_group ="menu:" + button.pane_type
-        self.item = button.item
+    def switch(self, params):
+        self.interface_group ="menu:" + self.item_state['button'].pane_type
+        self.item_state['item'] = self.item_state['button'].item
         return self.interface_group
 
     def switch_build(self, build):
@@ -351,3 +365,39 @@ class Text():
         for i in range(len(self.text_list)):
             self.screen.blit(self.text_list[i], self.pos_list[i])
         #for ... pos_list ... blit..
+
+
+class Obstacle():
+    def __init__(self, img):
+        self.img = img
+        Image(img, [self])
+
+    def rand_stones (self, object_list, N):
+        for i in range(N):
+            R_row = random.randrange(0, 19, 1)
+            R_column = random.randrange(0, 19, 1)
+            object_list[R_row][R_column]['obj'] = 'Stone'
+            object_list[R_row][R_column]['img'] = [self.img]
+            object_list[R_row][R_column]['rotate'] = [0, 0]
+
+
+# BUG: позорище. NxNy и size должны генерироваться в pane
+def create_buttons (buttons_dict, IMAGE_DICT, NxNy, size):
+    Button_list=[]
+    i = 0
+    if buttons_dict['pane'].pane_type == 'menu:building':
+        IMAGE_DICT['menu:building'] = []
+
+    for Butt in buttons_dict['buttons']:
+        Button_list.append(Button(Butt['name'], Butt['action']))
+        Button_list[i].item = Butt['item']
+        buttons_dict['pane'].Button_Init(Button_list, NxNy, size)
+        if 'image' not in buttons_dict:
+            Image(Butt['image'], [Button_list[i]])
+        i += 1
+
+    if 'image' in buttons_dict:
+        Image(buttons_dict['image'], Button_list)
+
+
+    return Button_list

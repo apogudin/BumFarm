@@ -8,6 +8,6 @@ shop_h = 150
 menu_w = 200
 
 BUTTON_DICT = {}
-IMAGE_LIST = []
+IMAGE_DICT = {'No pane_type': []}
 TEXT_LIST = []
 PANE_DICT = {}
