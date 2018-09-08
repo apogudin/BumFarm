@@ -38,6 +38,7 @@ class BusStation():
         [1, 1, 1],
         [0, 0, 0]
         ]
+        self.pivot = [1,1]
     def set_default(self, item_id):
         self.objects_dict[item_id].update({'bums':0, 'limit': 10,'lvl': 1})
 

@@ -70,8 +70,8 @@ while done == False:
     #"Призрак" при строительстве
     if  Worker.map_mode == 'mode_constructing' and hasattr(Worker.item_state['item'], 'img') and Pane_Map.IsOn(mouse_pos):
         pos_y, pos_x = Farm_RUS.WhoIsOn(mouse_pos)
-        pos_x = (pos_x - Pane_Map.NULL_tile_draw[0]) * Pane_Map.tile_size + Pane_Map.NULL_draw[0]
-        pos_y = (pos_y - Pane_Map.NULL_tile_draw[1]) * Pane_Map.tile_size + Pane_Map.NULL_draw[1]
+        pos_x = (pos_x - Pane_Map.NULL_tile_draw[0] - Worker.item_state['item'].pivot[1]) * Pane_Map.tile_size + Pane_Map.NULL_draw[0]
+        pos_y = (pos_y - Pane_Map.NULL_tile_draw[1] - Worker.item_state['item'].pivot[0]) * Pane_Map.tile_size + Pane_Map.NULL_draw[1]
         if Farm_RUS.can_build(mouse_pos):
             Worker.item_state['item'].img.draw(pos_x, pos_y, [4,4],[1,Worker.item_rotate])
         else:

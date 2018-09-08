@@ -100,13 +100,6 @@ class Map():
                 return True
         return False
 
-#    def Building_Init(self,building):
-#        self.Building = building
-
-#    def Building_add(self, obj, pos):
-#        #берём obj, напрмяую записываем в object_list и тут же obj.img - в img_list
-#        pass
-
     def Move(self, keys):
         speed = 5
         if (keys[pygame.K_RIGHT] or keys[pygame.K_d]) and self.NULL[0] + self.pane_width <= self.tile_size*self.NxNy[0]:
@@ -135,13 +128,18 @@ class Farm():
 
     #Проверка на занятость
     def can_build(self, mouse_pos):
-        pos = self.WhoIsOn(mouse_pos)
-        obj_size = len(self.worker.item_state['item'].tile)
+        obj = self.worker.item_state['item']
+        obj_size = len(obj.tile)
         obj_j, obj_i = 0, 0
-        for j in range(pos[0], pos[0]+obj_size):
-            for i in range(pos[1], pos[1]+obj_size):
+        pos = self.WhoIsOn(mouse_pos)
+        pos_row = pos[0] - obj.pivot[0]
+        pos_col = pos[1] - obj.pivot[1]
+        for j in range(pos_row, pos_row+obj_size):
+            for i in range(pos_col, pos_col+obj_size):
                 if self.worker.item_state['item'].tile[obj_j][obj_i]:
-                    if pos[0]+obj_j >= self.map.NxNy[1] or pos[1]+obj_i >= self.map.NxNy[0]:
+                    if pos_row+obj_j >= self.map.NxNy[1] or pos_col+obj_i >= self.map.NxNy[0]:
+                        return False
+                    elif pos_row+obj_j < 0 or pos_col+obj_i < 0:
                         return False
                     elif self.tile_info[j][i]['obj'] is not None:
                         return False
@@ -151,13 +149,16 @@ class Farm():
         return True
 
     def add (self, mouse_pos):
-        pos = self.WhoIsOn(mouse_pos)
         obj = self.worker.item_state['item']
         obj_size = len(self.worker.item_state['item'].tile)
+        pos = self.WhoIsOn(mouse_pos)
+        pos_row = pos[0] - obj.pivot[0]
+        pos_col = pos[1] - obj.pivot[1]
+
         #Записали в объект новый элемент, например '0:0': [bums, limit, lvl]
         item_id=''
-        for j in range(pos[0], pos[0]+obj_size):
-            for i in range(pos[1], pos[1]+obj_size):
+        for j in range(pos_row, pos_row+obj_size):
+            for i in range(pos_col, pos_col+obj_size):
                 item_id += '_' + str(j) + ':' + str(i) + '_'
         obj.objects_dict[item_id] = {}
         obj.set_default(item_id)
@@ -166,10 +167,10 @@ class Farm():
         for j in range(obj_size):
             for i in range(obj_size):
                 if obj.tile[j][i]:
-                    self.tile_info[pos[0]+j][pos[1]+i]['obj'] = obj
-                    self.tile_info[pos[0]+j][pos[1]+i]['id'] = item_id
-        self.tile_info[pos[0]][pos[1]]['img'].append(obj.img)
-        self.tile_info[pos[0]][pos[1]]['rotate'] = [3,self.worker.item_rotate]
+                    self.tile_info[pos_row+j][pos_col+i]['obj'] = obj
+                    self.tile_info[pos_row+j][pos_col+i]['id'] = item_id
+        self.tile_info[pos_row][pos_col]['img'].append(obj.img)
+        self.tile_info[pos_row][pos_col]['rotate'] = [3,self.worker.item_rotate]
         self.worker.item_rotate = 0
         self.worker.item_state['item'].tile_to_default()
 
@@ -221,14 +222,6 @@ class Button():
         self.item = item
         self.state = 'off'
         self.params = {'item_id': None}
-        #self.img = None
-        #self.pos_x = None
-        #self.pos_y = None
-        #self.pane_type = None
-        #self.width = None
-        #self.height = None
-        #self.screen = None
-        #self.font = None
 
     def IsOn (self, mouse_pos):
         if (self.pos_x < mouse_pos[0] < self.pos_x + self.width) :
