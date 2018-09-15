@@ -11,3 +11,4 @@ BUTTON_DICT = {}
 IMAGE_DICT = {'No pane_type': []}
 TEXT_LIST = []
 PANE_DICT = {}
+BUTTON_DRAW_GROUPS = {'static': [], 'active': []}

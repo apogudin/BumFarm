@@ -8,71 +8,30 @@ from Configs import *
 import copy
 
 class Pane():
-    def __init__(self, area, pane_type=None, grid=None):
+    def __init__(self, PANE_INIT_DICT, pane_name, PANE_DICT):
         #для выбранного type высчитывает область: левый-верхний, правый-нижний угол
-        self.pane = area
-        self.grid_area = grid
-        self.pane_type = pane_type
+        self.name = pane_name
+        self.area = PANE_INIT_DICT[pane_name]['area']
+        self.area_type = PANE_INIT_DICT[pane_name]['pane_type']
         self.img = None
         self.screen = None
         self.user_map_place = None
-        Append_To_Dict(PANE_DICT, self.pane_type, self)
-
-    def Button_Init(self, button_list, NxNy, size = [100, 150], gap = [10,10]):
-        self.button_list = button_list
-
-        def Grid(size_x, size_y, Nx, Ny, gap_x, gap_y, grid_area):
-            total_x = size[0]*NxNy[0] + gap[0]*(NxNy[0]-1)
-            total_y = size[1]*NxNy[1] + gap[1]*(NxNy[1]-1)
-            pane_x =  grid_area[1][0] - grid_area[0][0]
-            pane_y =  grid_area[1][1] - grid_area[0][1]
-            start_x = grid_area[0][0] + (pane_x/2 - total_x/2)
-            start_y = grid_area[0][1] + (pane_y/2 - total_y/2)
-
-            #Матрица Nx на Ny по центру области win_size,
-            #где элементы - [Y][X][x,y] левого верхнего угла распологаемого объекта для позиции X, Y в матрице
-            Grid = [[[start_x + i*(size[0] + gap[0]),start_y + j*(size[1]+gap[1])] \
-            for i in range(NxNy[0])] for j in range(NxNy[1])]
-
-            pos_x = Grid[grid_y][grid_x][0]
-            pos_y = Grid[grid_y][grid_x][1]
-            return [pos_x, pos_y]
-
-        #Записываем в кнопки их координаты
-        grid_x = 0
-        grid_y = 0
-
-        if self.pane_type == 'menu:building':
-            BUTTON_DICT['menu:building'] = []
-
-        for button in button_list:
-            i = button_list.index(button)
-            if ((i+1)-(grid_y*NxNy[0])) > NxNy[0]:
-                grid_x = 0
-                grid_y += 1
-            button.pos_x, button.pos_y = Grid(size[0], size[1], NxNy[0], NxNy[1], gap[0], gap[1], self.grid_area)
-            button.pane_type = self.pane_type
-            button.width = size[0]
-            button.height = size[1]
-
-            Append_To_Dict(BUTTON_DICT, self.pane_type, button)
-            grid_x += 1
 
     def draw_Button(self):
         for button in self.button_list:
             button.draw()
 
-    def draw_pane(self):
-        Img_Fill(self.img, self.pane, self.screen)
+    def draw(self):
+        Img_Fill(self.img, self.area, self.screen)
 
     def IsOn (self, mouse_pos):
-        if (self.pane[0][0] < mouse_pos[0] < self.pane[1][0]) :
-            if (self.pane[0][1] < mouse_pos[1] < self.pane[1][1]):
+        if (self.area[0][0] < mouse_pos[0] < self.area[1][0]) :
+            if (self.area[0][1] < mouse_pos[1] < self.area[1][1]):
                 return True
         return False
 
     def get_size(self):
-        return(self.pane)
+        return(self.area)
 
 
 class Map():
@@ -159,7 +118,7 @@ class Farm():
         item_id=''
         for j in range(pos_row, pos_row+obj_size):
             for i in range(pos_col, pos_col+obj_size):
-                item_id += '_' + str(j) + ':' + str(i) + '_'
+                item_id += 'r' + str(j) + 'c' + str(i)
         obj.objects_dict[item_id] = {}
         obj.set_default(item_id)
 
@@ -174,22 +133,14 @@ class Farm():
         self.worker.item_rotate = 0
         self.worker.item_state['item'].tile_to_default()
 
-    def WhoIsOn(self, mouse_pos): #хуйня, переписать
-        for i in range(1,self.map.NxNy[0]+1): #хуйня какая-то. Это все клетки чтоли проверяются???
+    def WhoIsOn(self, mouse_pos):
+        for i in range(1,self.map.NxNy[0]+1):
             if mouse_pos[0] < self.map.GRID_coo[0][i][0] + self.map.NULL_draw[0]:
-                #Указатель на абсолютную позицию в массиве
-                #if request == 'pos_tile' or request == 'pos_id':
                 pos_x = self.map.GRID_pos[0][i-1][0] + self.map.NULL_tile_draw[0]
-                #Что-то странное. Массив с абсолютными координатами? Зачем? Это не используется же.
-                #if request == 'pos_coordinates':
-                #    pos_x = self.map.GRID_coo[0][i-1][0] + self.map.NULL_draw[0]
                 break
         for j in range(1,self.map.NxNy[1]+1):
             if mouse_pos[1] < self.map.GRID_coo[j][0][1] + self.map.NULL_draw[1]:
-                #if request == 'pos_tile' or request == 'pos_id':
                 pos_y = self.map.GRID_pos[j-1][0][1] + self.map.NULL_tile_draw[1]
-                #if request == 'pos_coordinates':
-                #    pos_y = self.map.GRID_coo[j-1][0][1] + self.map.NULL_draw[1]
                 break
         return [pos_y, pos_x]
 
@@ -211,7 +162,9 @@ class Farm():
         elif obj is not None:
             self.worker.item_state['item'] = obj
             self.worker.item_state['item_id'] = self.tile_info[pos[0]][pos[1]]['id']
-            return self.worker.switch_build(self)
+
+            self.worker.switch({'switch': ('MENU', 'menu:building')})
+            return obj.button_dict
 
 
 class Button():
@@ -238,8 +191,12 @@ class Button():
         self.screen.blit(text, (self.pos_x + (self.width/2 - text.get_width()/2), self.pos_y +(self.height/2 - text.get_height()/2)))
 
     def Activate(self):
-        self.Worker.item_state['button'] = self
-        return self.action(self.Worker.item_state)
+        if self.item is not None:
+            self.Worker.item_state['item'] = self.item
+        self.params['item'] = self.Worker.item_state['item']
+        self.params['item_id'] = self.Worker.item_state['item_id']
+        #self.Worker.item_state['item_id'] = None
+        return self.action(self.params)
 
     def get_size(self):
         return [self.width, self.height]
@@ -250,14 +207,15 @@ class Button():
 #Для более удобной работы с изображениями.
 #Object_list должен содержать объекты, пренадлежащие одной группе
 class Image():
-    def __init__(self, image, object_list = [], folder = 'images'):
+    def __init__(self, image, object_list = [], folder = 'images', screen=None):
+
         if hasattr(object_list[0], 'pane_type'):
             if object_list[0].pane_type not in IMAGE_DICT:
                 IMAGE_DICT[object_list[0].pane_type] = []
             IMAGE_DICT[object_list[0].pane_type].append(self)
         else:
             IMAGE_DICT['No pane_type'].append(self)
-
+        self.screen = screen
         self.img = pygame.image.load(os.path.join(folder,image))
         self.width = self.img.get_width()
         self.height = self.img.get_height()
@@ -286,42 +244,70 @@ class Image():
 
 class Actor ():
     def __init__(self):
-        self.item = None
-        self.item_id = None
+        #self.item = None
+        #self.item_id = None
         self.item_state = {
             'item': None,
             'item_id':None,
-            'button': None,
+        #    'button': None,
         }
         self.item_rotate = 0
-        self.interface_group = None
-        self.map_mode = 'mode_base'
-        self.map_mode_switch = 'mode_constructing'
+        self.interface_state = {
+        #    'interface_group': '',
+            'map_mode': 'base',
+            'constructing_mode': False,
+            'continue_game': True
+        }
+        #self.interface_group = None
+        #self.
+        #self.map_mode_switch = 'mode_constructing'
         #self.co = 0
 
     def switch(self, params):
-        self.interface_group ="menu:" + self.item_state['button'].pane_type
-        self.item_state['item'] = self.item_state['button'].item
-        return self.interface_group
+        pane = params['switch'][0]
+        switch_group = params['switch'][1]
 
-    def switch_build(self, build):
-        self.interface_group ="menu:building"
-        return self.interface_group
+        for button_area in self.PANE_INIT_DICT[pane]['buttons_area']:
+            if button_area == switch_group:
+                self.PANE_INIT_DICT[pane]['buttons_area'][button_area]['draw'] = True
+            else:
+                self.PANE_INIT_DICT[pane]['buttons_area'][button_area]['draw'] = False
 
-    def switch_map(self, button=None):
-        self.map_mode,self.map_mode_switch = self.map_mode_switch, self.map_mode
 
-    def buy(self, button):
+        #self.interface_group ="menu:" + self.item_state['button'].pane_type
+        #if self.item_state['button'] is not None:
+        #    self.item_state['item'] = self.item_state['button'].item
+        return #self.interface_group
+
+    #def switch_build(self, build):
+    #    self.interface_group ="menu:building"
+    #    return self.interface_group
+
+    def switch_constructing_mode(self, params = None):
+        self.interface_state['constructing_mode'] = not self.interface_state['constructing_mode']
+        #self.map_mode,self.map_mode_switch = self.map_mode_switch, self.map_mode
+
+    def clear_buttons_areas(self, PANE_INIT_DICT, pane):
+        for buttons_area_i in PANE_INIT_DICT[pane]['buttons_area']:
+            PANE_INIT_DICT[pane]['buttons_area'][buttons_area_i]['draw'] = False
+        for key in self.item_state:
+            self.item_state[key] = None
+
+    def clear_button_dict(self, PANE_INIT_DICT, pane):
+        PANE_INIT_DICT[pane]['button_dict'] = []
+
+    def end_game(self, params = None):
+        self.interface_state['continue_game'] = False
+
+'''    def buy(self, button):
         self.item.buy()
-
     def set(self, button=None):
         self.item.set(self.item_id)
-
     def lvl(self, button=None):
-        self.item.lvl(self.item_id)
+        self.item.lvl(self.item_id)'''
 
-    def EXIT(self, item=''):
-        return 'EXIT'
+
+
 
 
 class Text():
@@ -361,9 +347,9 @@ class Text():
 
 
 class Obstacle():
-    def __init__(self, img):
+    def __init__(self, img, screen):
         self.img = img
-        Image(img, [self])
+        Image(img, [self], screen = screen)
 
     def rand_stones (self, object_list, N):
         for i in range(N):
@@ -374,23 +360,161 @@ class Obstacle():
             object_list[R_row][R_column]['rotate'] = [0, 0]
 
 
-# BUG: позорище. NxNy и size должны генерироваться в pane
-def create_buttons (buttons_dict, IMAGE_DICT, NxNy, size):
-    Button_list=[]
-    i = 0
-    if buttons_dict['pane'].pane_type == 'menu:building':
-        IMAGE_DICT['menu:building'] = []
 
-    for Butt in buttons_dict['buttons']:
-        Button_list.append(Button(Butt['name'], Butt['action']))
-        Button_list[i].item = Butt['item']
-        buttons_dict['pane'].Button_Init(Button_list, NxNy, size)
-        if 'image' not in buttons_dict:
-            Image(Butt['image'], [Button_list[i]])
+
+
+
+#############записываем чисто в кнопки координаты. берет чисто объекты
+def coordinates_to_button (buttons_area, pane_button_group):
+    button_obj_list = buttons_area[pane_button_group]['button_obj_list']
+    button_dict = buttons_area[pane_button_group]['button_dict']
+    button_group_dict = buttons_area[pane_button_group]
+    size = buttons_area[pane_button_group]['button_size']
+    gap = [10,10]
+    if 'button_row' in button_group_dict:
+        Nrow_Ncol = [button_group_dict['button_row'], math.ceil(len(button_dict)/button_group_dict['button_row'])]
+    elif 'button_col' in button_group_dict:
+        Nrow_Ncol = [math.ceil(len(button_dict)/button_group_dict['button_col']), button_group_dict['button_col']]
+    else:
+        Nrow_Ncol = [1, len(button_dict)]
+
+    grid_area = button_group_dict['area']
+
+    def Grid(size, NxNy, gap, grid_area):
+        total_x = size[0]*Nrow_Ncol[1] + gap[0]*(Nrow_Ncol[1]-1)
+        total_y = size[1]*Nrow_Ncol[0] + gap[1]*(Nrow_Ncol[0]-1)
+        pane_x =  grid_area[1][0] - grid_area[0][0]
+        pane_y =  grid_area[1][1] - grid_area[0][1]
+        start_x = grid_area[0][0] + (pane_x/2 - total_x/2)
+        start_y = grid_area[0][1] + (pane_y/2 - total_y/2)
+
+        #Матрица Nx на Ny по центру области win_size,
+        #где элементы - [Y][X][x,y] левого верхнего угла распологаемого объекта для позиции X, Y в матрице
+        Grid = [[[start_x + i*(size[0] + gap[0]),start_y + j*(size[1]+gap[1])] \
+        for i in range(Nrow_Ncol[1])] for j in range(Nrow_Ncol[0])]
+
+        pos_x = Grid[grid_y][grid_x][0]
+        pos_y = Grid[grid_y][grid_x][1]
+        return [pos_x, pos_y]
+
+    #Записываем в кнопки их координаты
+    grid_x, grid_y = 0, 0
+    #    if group == 'menu:building':
+    #        BUTTON_DICT['menu:building'] = []
+
+    for button in button_obj_list:
+        i = button_obj_list.index(button)
+        if ((i+1)-(grid_y*Nrow_Ncol[1])) > Nrow_Ncol[1]:
+            grid_x = 0
+            grid_y += 1
+        button.pos_x, button.pos_y = Grid(size, Nrow_Ncol, gap, grid_area)
+        button.pane_type = pane_button_group
+        button.width = size[0]
+        button.height = size[1]
+
+        grid_x += 1
+    return
+
+#############батон инит больше нет.
+def create_buttons (buttons_area, pane_button_group, IMAGE_DICT, BUTTON_DICT, BUTTON_DRAW_GROUPS):
+    button_dict = buttons_area[pane_button_group]['button_dict']
+    buttons_area[pane_button_group]['button_obj_list'] = []
+    i = 0
+
+
+    #if pane_button_group == 'menu:building':
+    IMAGE_DICT[pane_button_group] = []
+
+    for Butt in button_dict:
+        buttons_area[pane_button_group]['button_obj_list'].append(Button(Butt['name'], Butt['action']))
+        buttons_area[pane_button_group]['button_obj_list'][i].item = Butt['item']
+        buttons_area[pane_button_group]['button_obj_list'][i].screen = buttons_area[pane_button_group]['screen']
+        buttons_area[pane_button_group]['button_obj_list'][i].font = buttons_area[pane_button_group]['font']
+        buttons_area[pane_button_group]['button_obj_list'][i].Worker = buttons_area[pane_button_group]['Worker']
+        if 'switch' in buttons_area[pane_button_group]:
+            buttons_area[pane_button_group]['button_obj_list'][i].params['switch'] = buttons_area[pane_button_group]['switch']
+        if 'button_image' not in buttons_area[pane_button_group]:
+            Image(Butt['button_image'], [buttons_area[pane_button_group]['button_obj_list'][i]], screen = buttons_area[pane_button_group]['screen'])
         i += 1
 
-    if 'image' in buttons_dict:
-        Image(buttons_dict['image'], Button_list)
+    if 'button_image' in buttons_area[pane_button_group]:
+        Image(buttons_area[pane_button_group]['button_image'], buttons_area[pane_button_group]['button_obj_list'], screen = buttons_area[pane_button_group]['screen'])
+
+    coordinates_to_button(buttons_area, pane_button_group)
+
+    BUTTON_DICT[pane_button_group] = buttons_area[pane_button_group]['button_obj_list']
+    if 'static' not in buttons_area[pane_button_group] or buttons_area[pane_button_group]['static']:
+        BUTTON_DRAW_GROUPS['static'].append(buttons_area[pane_button_group]['button_obj_list'])
+
+    return buttons_area[pane_button_group]['button_obj_list']
 
 
-    return Button_list
+def create_areas(PANE_INIT_DICT, input_est_screen):
+    est_screen = [[None, None],[None, None]]
+    est_screen[0] = [input_est_screen[0][0], input_est_screen[0][1]]
+    est_screen[1] = [input_est_screen[1][0], input_est_screen[1][1]]
+
+    #Если нужна область, занимающая опрелённый процент от доступного места
+    def percentage(elem, input_est_screen):
+        if elem['alignment'] == 'top' or elem['alignment'] == 'bottom':
+            elem['height'] = (est_screen[1][1] - est_screen[0][1]) * elem['percent'] // 100
+        if elem['alignment'] == 'left' or elem['alignment'] == 'right':
+            elem['width'] = (est_screen[1][0] - est_screen[0][0]) // elem['percent']
+
+    for n in range(len(PANE_INIT_DICT)):
+        for elem in PANE_INIT_DICT:
+            if PANE_INIT_DICT[elem]['order'] == n:
+                created_area = [[None, None],[None, None]]
+                created_area[0] = [est_screen[0][0], est_screen[0][1]]
+                created_area[1] = [est_screen[1][0], est_screen[1][1]]
+
+                if 'percent' in PANE_INIT_DICT[elem]:
+                    percentage(PANE_INIT_DICT[elem], est_screen)
+
+                if PANE_INIT_DICT[elem]['alignment'] == 'top':
+                    created_area[1][1] = est_screen[0][1] + PANE_INIT_DICT[elem]['height']
+                    PANE_INIT_DICT[elem]['area'] = created_area
+                    if ('cut_est' not in PANE_INIT_DICT[elem]) or PANE_INIT_DICT[elem]['cut_est']:
+                        est_screen[0][1] += PANE_INIT_DICT[elem]['height']
+
+                elif PANE_INIT_DICT[elem]['alignment'] == 'bottom':
+                    created_area[0][1] = est_screen[1][1] - PANE_INIT_DICT[elem]['height']
+                    PANE_INIT_DICT[elem]['area'] = created_area
+                    if ('cut_est' not in PANE_INIT_DICT[elem]) or PANE_INIT_DICT[elem]['cut_est']:
+                        est_screen[1][1] -= PANE_INIT_DICT[elem]['height']
+
+                elif PANE_INIT_DICT[elem]['alignment'] == 'left':
+                    created_area[1][0] = est_screen[0][0] + PANE_INIT_DICT[elem]['width']
+                    PANE_INIT_DICT[elem]['area'] = created_area
+                    if ('cut_est' not in PANE_INIT_DICT[elem]) or PANE_INIT_DICT[elem]['cut_est']:
+                        est_screen[0][0] += PANE_INIT_DICT[elem]['width']
+
+                elif PANE_INIT_DICT[elem]['alignment'] == 'right':
+                    created_area[0][0] = est_screen[1][0] - PANE_INIT_DICT[elem]['width']
+                    PANE_INIT_DICT[elem]['area'] = created_area
+                    if ('cut_est' not in PANE_INIT_DICT[elem]) or PANE_INIT_DICT[elem]['cut_est']:
+                        est_screen[1][0] -= PANE_INIT_DICT[elem]['width']
+
+                elif PANE_INIT_DICT[elem]['alignment'] == 'all':
+                    created_area = est_screen
+                    PANE_INIT_DICT[elem]['area'] = created_area
+                    if ('cut_est' not in PANE_INIT_DICT[elem]) or PANE_INIT_DICT[elem]['cut_est']:
+                        est_screen = None
+
+
+def create_panes(PANE_INIT_DICT, PANE_DICT, IMAGE_DICT):
+    for pane_name in PANE_INIT_DICT:
+        PANE_DICT[PANE_INIT_DICT[pane_name]['pane_type']] = Pane(PANE_INIT_DICT, pane_name, PANE_INIT_DICT[pane_name]['pane_type'])
+        PANE_INIT_DICT[pane_name]['pane_obj'] = PANE_DICT[PANE_INIT_DICT[pane_name]['pane_type']]
+        PANE_INIT_DICT[pane_name]['pane_obj'].pane_type = PANE_INIT_DICT[pane_name]['pane_type']
+        PANE_INIT_DICT[pane_name]['pane_obj'].screen = PANE_INIT_DICT[pane_name]['screen']
+        if 'pane_image' in PANE_INIT_DICT[pane_name]:
+            Image(PANE_INIT_DICT[pane_name]['pane_image'], [PANE_INIT_DICT[pane_name]['pane_obj']], screen = PANE_INIT_DICT[pane_name]['screen'])
+        if PANE_INIT_DICT[pane_name]['buttons_area'] is not None:
+            for button_group in PANE_INIT_DICT[pane_name]['buttons_area']:
+                PANE_INIT_DICT[pane_name]['buttons_area'][button_group]['Worker'] = PANE_INIT_DICT[pane_name]['Worker']
+                PANE_INIT_DICT[pane_name]['buttons_area'][button_group]['screen'] = PANE_INIT_DICT[pane_name]['screen']
+
+                if PANE_INIT_DICT[pane_name]['buttons_area'][button_group]['button_dict'] is not None:
+                    for button in PANE_INIT_DICT[pane_name]['buttons_area'][button_group]['button_dict']:
+                        button['pane'] = PANE_INIT_DICT[pane_name]['pane_obj']

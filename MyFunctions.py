@@ -59,12 +59,25 @@ def Append_To_Dict(dict, key, value):
         dict[key] = [value]
 
 #Пробегаемся по всем объектам (поправить: только по определённой панели), вызываем у них IsOn
-def CheckAll (pane_list, dict, mouse_pos):
-    for pane in pane_list:
-        if pane.pane_type in dict:
-            for button in dict[pane.pane_type]:
-                button.IsOn(mouse_pos)
+def Check_All (PANE_INIT_DICT, mouse_pos, activate = False):
+    for pane in PANE_INIT_DICT:
+        if PANE_INIT_DICT[pane]['buttons_area'] is not None:
+            for button_area in PANE_INIT_DICT[pane]['buttons_area']:
+                if PANE_INIT_DICT[pane]['buttons_area'][button_area]['draw']:
+                    for button in  PANE_INIT_DICT[pane]['buttons_area'][button_area]['button_obj_list']:
+                        if activate:
+                            if button.IsOn(mouse_pos):
+                                button.Activate()
+                        else:
+                            button.IsOn(mouse_pos)
 
+
+#def CheckAll (pane_list, dict, mouse_pos):
+#    for pane in pane_list:
+#        if pane.pane_type in dict:
+#            for button in dict[pane.pane_type]:
+#                button.IsOn(mouse_pos)
+'''
 #Пробегаемся по всем объектам (поправить: только по определённой панели) и активируем
 def CheckAll_And_Action (pane_list, dict, mouse_pos):
     for pane in pane_list:
@@ -73,7 +86,7 @@ def CheckAll_And_Action (pane_list, dict, mouse_pos):
                 if button.IsOn(mouse_pos):
                     return button.Activate()
 
-
+'''
 
 def rotate_build(matrix, right = False):
     if right:

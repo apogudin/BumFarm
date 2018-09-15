@@ -15,10 +15,7 @@ class BusStation():
         self.tile_to_default()
         self.objects_dict = {}
         self.img = None
-        self.buttons_dict = {
-            'pane': pane,
-            'image': 'Button_Menu_Shop.png',
-            'buttons': [
+        self.button_dict = [
             {
                 'name': 'BUY',
                 'action': self.set,
@@ -28,9 +25,10 @@ class BusStation():
                 'name': 'LEVEL',
                 'action': self.lvl,
                 'item': self,
-            }
-            ]
-        }
+            }]
+                           #'pane': pane,
+                    #'image': 'Button_Menu_Shop.png',
+                    #'button_dict':
 
     def tile_to_default(self):
         self.tile = [
@@ -44,6 +42,7 @@ class BusStation():
 
 
     def set(self, item_state):
+        print(item_state)
         self.objects_dict[item_state['item_id']]['bums'] += 1
 
     def lvl(self, item_state):
