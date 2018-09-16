@@ -2,10 +2,8 @@ import math
 import pygame
 import os
 import sys
-from Objects import *
 from MyFunctions import *
-from Configs import *
-import copy
+
 
 #Области экрана
 class Pane():

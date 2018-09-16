@@ -1,12 +1,9 @@
 from MyFunctions import *
-from Configs import *
-
-
 
 
 class BusStation():
     #Здание - остановка
-    def __init__(self, pane):
+    def __init__(self):
         self.cost = 25
         self.limit = 0
         self.level = 1
@@ -85,3 +82,18 @@ class Coins():
         self.amount += sum
     def outgo(self, sum):       #Расход
         self.amount -= sum
+
+#Игровой процесс пользователя
+class User():
+    def __init__(self):
+        self.resources = {
+        'coins': 0,
+        'bums': {
+            'EUR': 0,
+            'NAM': 0,
+            'SAM': 0,
+            'AFR': 0,
+            'AUS': 0,
+            'ANT': 0,
+        },
+        }

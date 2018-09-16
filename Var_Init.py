@@ -1,15 +1,16 @@
 import pygame
 import os
 import sys
-from Interface import *
 from Objects import *
+from Interface import *
+
 
 pygame.init()
 
 map_mode = 'base'
 alert = ''
 Worker = Actor()
-
+Player = User()
 
 #Шрифты
 Font25 = pygame.font.SysFont('Colibri', 20)
@@ -107,52 +108,62 @@ PANE_INIT_DICT = {
                 {
                     'name': 'STATION',
                     'action': Worker.switch,
-                    'item_image': 'Build1.png'
+                    'item_image': 'Build1.png',
+                    'item': BusStation(),
                 },
                 {
                     'name': 'BLDG2',
                     'action': Worker.switch,
-                    'item_image': 'Build1.png'
+                    'item_image': 'Build1.png',
+                    'item': BusStation(),
                 },
                 {
                     'name': 'BLDG3',
                     'action': Worker.switch,
-                    'item_image': 'Build1.png'
+                    'item_image': 'Build1.png',
+                    'item': BusStation(),
                 },
                 {
                     'name': 'BLDG4',
                     'action': Worker.switch,
-                    'item_image': 'Build1.png'
+                    'item_image': 'Build1.png',
+                    'item': BusStation(),
                 },
                 {
                     'name': 'BLDG5',
                     'action': Worker.switch,
-                    'item_image': 'Build1.png'
+                    'item_image': 'Build1.png',
+                    'item': BusStation(),
                 },
                 {
                     'name': 'BLDG6',
                     'action': Worker.switch,
-                    'item_image': 'Build1.png'
+                    'item_image': 'Build1.png',
+                    'item': BusStation(),
                 },
                 {
                     'name': 'BLDG7',
                     'action': Worker.switch,
-                    'item_image': 'Build1.png'
+                    'item_image': 'Build1.png',
+                    'item': BusStation(),
                 },
                 {
                     'name': 'BLDG8',
                     'action': Worker.switch,
-                    'item_image': 'Build1.png'
+                    'item_image': 'Build1.png',
+                    'item': BusStation(),
                 },
                 {
                     'name': 'BLDG9',
                     'action': Worker.switch,
-                    'item_image': 'Build1.png'
+                    'item_image': 'Build1.png',
+                    'item': BusStation(),
                 },
                 {
                     'name': 'BLDG10',
                     'action': Worker.switch,
-                    'item_image': 'Build1.png'
+                    'item_image': 'Build1.png',
+                    'item': BusStation(),
                 }
                 ]
             },
@@ -252,9 +263,8 @@ for pane in PANE_INIT_DICT:
                     create_areas(PANE_INIT_DICT[pane]['buttons_area'], PANE_INIT_DICT[pane]['area'])
 create_panes(PANE_INIT_DICT, PANE_DICT, IMAGE_DICT)
 
-# BUG: Тут подумать, как привязать объекты к кнопкам. Нафига в объектах pane?
+#Иницализация изображений для всех зданий
 for button in PANE_INIT_DICT['SHOP']['buttons_area']['shop']['button_dict']:
-    button['item'] = BusStation(button['pane'])
     Image(button['item_image'], [button['item']], screen = screen)
 
 for pane in PANE_INIT_DICT:

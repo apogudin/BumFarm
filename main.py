@@ -1,7 +1,6 @@
 import pygame
 from Var_Init import *
-from Interface import *
-from MyFunctions import *
+
 
 Obstacle_Stones.rand_stones(Farm_RUS.tile_info, 20)
 
@@ -18,7 +17,7 @@ while Worker.interface_state['continue_game']:
             if event.type == pygame.MOUSEMOTION:
                 Check_All(PANE_INIT_DICT, mouse_pos)
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                print('BEFORE: ', Worker.item_state)
+
                 if Pane_Map.IsOn(mouse_pos):
                     active_tile = Farm_RUS.Activate(mouse_pos)
                     PANE_INIT_DICT['MENU']['buttons_area']['menu:building']['button_dict'] = active_tile
