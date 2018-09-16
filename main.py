@@ -1,4 +1,3 @@
-import pygame
 from Var_Init import *
 
 

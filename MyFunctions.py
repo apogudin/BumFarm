@@ -1,5 +1,3 @@
-import math
-import random
 from Configs import *
 
 #Выводит текст в зоне ресурсов

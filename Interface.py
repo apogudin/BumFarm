@@ -1,7 +1,3 @@
-import math
-import pygame
-import os
-import sys
 from MyFunctions import *
 
 

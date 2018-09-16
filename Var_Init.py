@@ -1,6 +1,3 @@
-import pygame
-import os
-import sys
 from Objects import *
 from Interface import *
 
