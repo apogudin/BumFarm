@@ -1,15 +1,6 @@
 import math
 import random
 
-#Проверка: достаточно ли денег
-def YouBum(have, need):
-    if have.amount >= need.cost:
-        return
-    else:
-        print('>>>Ты бомжара, держи монетку')
-        have.income(100)
-        return
-
 #Выводит текст в зоне ресурсов
 def Text_Resourses (text, amount, txt_x, font, screen, interval, position):
     txt_y = position * interval
@@ -51,13 +42,6 @@ def Img_Fill(Image, area, screen):
                 crop_x = total_x - width*j
             screen.blit(img, [Xi, Yi],(0,0,crop_x,crop_y))
 
-#Добавление объекта в словарь
-def Append_To_Dict(dict, key, value):
-    if key in dict:
-        dict[key].append(value)
-    else:
-        dict[key] = [value]
-
 #Пробегаемся по всем объектам (поправить: только по определённой панели), вызываем у них IsOn
 def Check_All (PANE_INIT_DICT, mouse_pos, activate = False):
     for pane in PANE_INIT_DICT:
@@ -71,23 +55,7 @@ def Check_All (PANE_INIT_DICT, mouse_pos, activate = False):
                         else:
                             button.IsOn(mouse_pos)
 
-
-#def CheckAll (pane_list, dict, mouse_pos):
-#    for pane in pane_list:
-#        if pane.pane_type in dict:
-#            for button in dict[pane.pane_type]:
-#                button.IsOn(mouse_pos)
-'''
-#Пробегаемся по всем объектам (поправить: только по определённой панели) и активируем
-def CheckAll_And_Action (pane_list, dict, mouse_pos):
-    for pane in pane_list:
-        if pane.pane_type in dict:
-            for button in dict[pane.pane_type]:
-                if button.IsOn(mouse_pos):
-                    return button.Activate()
-
-'''
-
+#Поворот здания: поворачивает матрицу тайлов по/против часовой стрелки. 
 def rotate_build(matrix, right = False):
     if right:
         return[list(reversed(col)) for col in zip(*matrix)]

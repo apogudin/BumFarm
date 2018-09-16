@@ -7,6 +7,7 @@ from MyFunctions import *
 from Configs import *
 import copy
 
+#Области экрана
 class Pane():
     def __init__(self, PANE_INIT_DICT, pane_name, PANE_DICT):
         #для выбранного type высчитывает область: левый-верхний, правый-нижний угол
@@ -14,12 +15,6 @@ class Pane():
         self.area = PANE_INIT_DICT[pane_name]['area']
         self.area_type = PANE_INIT_DICT[pane_name]['pane_type']
         self.img = None
-        self.screen = None
-        self.user_map_place = None
-
-    def draw_Button(self):
-        for button in self.button_list:
-            button.draw()
 
     def draw(self):
         Img_Fill(self.img, self.area, self.screen)
@@ -34,6 +29,45 @@ class Pane():
         return(self.area)
 
 
+
+class Button():
+    #Кнопки с любыми шрифтами, размерами, положением.
+    def __init__(self, name, action, item = None):
+        self.action = action
+        self.name = name
+        self.item = item
+        self.state = 'off'
+        self.params = {'item_id': None}
+
+    def IsOn (self, mouse_pos):
+        if (self.pos_x < mouse_pos[0] < self.pos_x + self.width) :
+            if (self.pos_y < mouse_pos[1] < self.pos_y + self.height):
+                self.state = 'on'
+                return True
+        self.state = 'off'
+        return False
+
+    def draw (self):
+        text = self.font.render(self.name, True, [0,0,0])
+        self.img.draw_Button(self.pos_x, self.pos_y, self.state)
+        #Img_Fill(self.bg_draw,[[self.pos_x,self.pos_y],[self.pos_x+self.width, self.pos_y+self.height]], self.screen)
+        self.screen.blit(text, (self.pos_x + (self.width/2 - text.get_width()/2), self.pos_y +(self.height/2 - text.get_height()/2)))
+
+    def Activate(self):
+        if self.item is not None:
+            self.Worker.item_state['item'] = self.item
+        self.params['item'] = self.Worker.item_state['item']
+        self.params['item_id'] = self.Worker.item_state['item_id']
+        return self.action(self.params)
+
+    def get_size(self):
+        return [self.width, self.height]
+
+    def pos(self):
+        return [self.pos_x, self.pos_y]
+
+
+# BUG: кажется, можно объединять с Farm.
 class Map():
     def __init__(self, pane, NxNy, building_list = []):
         self.pane = pane
@@ -76,7 +110,8 @@ class Map():
         Img_Fill(self.img, [self.NULL_draw, self.pane[1]], self.screen)
         self.Building.draw()
 
-#Хранит информацию о каждой клетке
+
+#Хранит информацию о каждой клетке: какие объекты, какие здания
 class Farm():
     def __init__(self, worker, map):
         self.worker = worker
@@ -166,45 +201,7 @@ class Farm():
             self.worker.switch({'switch': ('MENU', 'menu:building')})
             return obj.button_dict
 
-
-class Button():
-    #Кнопки с любыми шрифтами, размерами, положением.
-    def __init__(self, name, action, item = None):
-        self.action = action
-        self.name = name
-        self.item = item
-        self.state = 'off'
-        self.params = {'item_id': None}
-
-    def IsOn (self, mouse_pos):
-        if (self.pos_x < mouse_pos[0] < self.pos_x + self.width) :
-            if (self.pos_y < mouse_pos[1] < self.pos_y + self.height):
-                self.state = 'on'
-                return True
-        self.state = 'off'
-        return False
-
-    def draw (self):
-        text = self.font.render(self.name, True, [0,0,0])
-        self.img.draw_Button(self.pos_x, self.pos_y, self.state)
-        #Img_Fill(self.bg_draw,[[self.pos_x,self.pos_y],[self.pos_x+self.width, self.pos_y+self.height]], self.screen)
-        self.screen.blit(text, (self.pos_x + (self.width/2 - text.get_width()/2), self.pos_y +(self.height/2 - text.get_height()/2)))
-
-    def Activate(self):
-        if self.item is not None:
-            self.Worker.item_state['item'] = self.item
-        self.params['item'] = self.Worker.item_state['item']
-        self.params['item_id'] = self.Worker.item_state['item_id']
-        #self.Worker.item_state['item_id'] = None
-        return self.action(self.params)
-
-    def get_size(self):
-        return [self.width, self.height]
-
-    def pos(self):
-        return [self.pos_x, self.pos_y]
-
-#Для более удобной работы с изображениями.
+#Для более удобной работы с изображениями. Кропаем, застилаем, пишем в объекты.
 #Object_list должен содержать объекты, пренадлежащие одной группе
 class Image():
     def __init__(self, image, object_list = [], folder = 'images', screen=None):
@@ -229,7 +226,6 @@ class Image():
         crop_pos_y = crop_height*elem[0]
         self.screen.blit(self.img, [pos_x, pos_y],(crop_pos_x,crop_pos_y,crop_width,crop_height))
 
-
     def draw_Button(self, pos_x, pos_y, state):
         if state == 'off':
             elem = [0,0]
@@ -237,31 +233,23 @@ class Image():
             elem = [1,0]
         self.draw(pos_x, pos_y, [1,2], elem)
 
-
     def fill(self, area):
         Img_Fill(area, self.screen)
-##
 
+
+#Переключатели, работа с хешом интерфейса, указатели на объекты
 class Actor ():
     def __init__(self):
-        #self.item = None
-        #self.item_id = None
         self.item_state = {
             'item': None,
             'item_id':None,
-        #    'button': None,
         }
         self.item_rotate = 0
         self.interface_state = {
-        #    'interface_group': '',
             'map_mode': 'base',
             'constructing_mode': False,
             'continue_game': True
         }
-        #self.interface_group = None
-        #self.
-        #self.map_mode_switch = 'mode_constructing'
-        #self.co = 0
 
     def switch(self, params):
         pane = params['switch'][0]
@@ -272,20 +260,10 @@ class Actor ():
                 self.PANE_INIT_DICT[pane]['buttons_area'][button_area]['draw'] = True
             else:
                 self.PANE_INIT_DICT[pane]['buttons_area'][button_area]['draw'] = False
-
-
-        #self.interface_group ="menu:" + self.item_state['button'].pane_type
-        #if self.item_state['button'] is not None:
-        #    self.item_state['item'] = self.item_state['button'].item
-        return #self.interface_group
-
-    #def switch_build(self, build):
-    #    self.interface_group ="menu:building"
-    #    return self.interface_group
+        return
 
     def switch_constructing_mode(self, params = None):
         self.interface_state['constructing_mode'] = not self.interface_state['constructing_mode']
-        #self.map_mode,self.map_mode_switch = self.map_mode_switch, self.map_mode
 
     def clear_buttons_areas(self, PANE_INIT_DICT, pane):
         for buttons_area_i in PANE_INIT_DICT[pane]['buttons_area']:
@@ -299,17 +277,8 @@ class Actor ():
     def end_game(self, params = None):
         self.interface_state['continue_game'] = False
 
-'''    def buy(self, button):
-        self.item.buy()
-    def set(self, button=None):
-        self.item.set(self.item_id)
-    def lvl(self, button=None):
-        self.item.lvl(self.item_id)'''
 
-
-
-
-
+#Для более удобной работы с текстом. В разработке
 class Text():
     def __init__(self, font, pos_list, text_type = None):
         #либо указываем напрямую список позиций pos_list,
@@ -346,6 +315,7 @@ class Text():
         #for ... pos_list ... blit..
 
 
+#Рандомайзер препятствий на карте
 class Obstacle():
     def __init__(self, img, screen):
         self.img = img
@@ -360,11 +330,7 @@ class Obstacle():
             object_list[R_row][R_column]['rotate'] = [0, 0]
 
 
-
-
-
-
-#############записываем чисто в кнопки координаты. берет чисто объекты
+#Записывает в кнопки окончательные координаты для рендеринга
 def coordinates_to_button (buttons_area, pane_button_group):
     button_obj_list = buttons_area[pane_button_group]['button_obj_list']
     button_dict = buttons_area[pane_button_group]['button_dict']
@@ -415,14 +381,12 @@ def coordinates_to_button (buttons_area, pane_button_group):
         grid_x += 1
     return
 
-#############батон инит больше нет.
-def create_buttons (buttons_area, pane_button_group, IMAGE_DICT, BUTTON_DICT, BUTTON_DRAW_GROUPS):
+#Создание объектов Button() по хешу интерфейса
+def create_buttons (buttons_area, pane_button_group, IMAGE_DICT):
     button_dict = buttons_area[pane_button_group]['button_dict']
     buttons_area[pane_button_group]['button_obj_list'] = []
     i = 0
 
-
-    #if pane_button_group == 'menu:building':
     IMAGE_DICT[pane_button_group] = []
 
     for Butt in button_dict:
@@ -442,13 +406,13 @@ def create_buttons (buttons_area, pane_button_group, IMAGE_DICT, BUTTON_DICT, BU
 
     coordinates_to_button(buttons_area, pane_button_group)
 
-    BUTTON_DICT[pane_button_group] = buttons_area[pane_button_group]['button_obj_list']
-    if 'static' not in buttons_area[pane_button_group] or buttons_area[pane_button_group]['static']:
-        BUTTON_DRAW_GROUPS['static'].append(buttons_area[pane_button_group]['button_obj_list'])
+    #BUTTON_DICT[pane_button_group] = buttons_area[pane_button_group]['button_obj_list']
+    #if 'static' not in buttons_area[pane_button_group] or buttons_area[pane_button_group]['static']:
+    #    BUTTON_DRAW_GROUPS['static'].append(buttons_area[pane_button_group]['button_obj_list'])
 
     return buttons_area[pane_button_group]['button_obj_list']
 
-
+#Вычисление координат для панелей или областей для кнопок по хешу интерфейса
 def create_areas(PANE_INIT_DICT, input_est_screen):
     est_screen = [[None, None],[None, None]]
     est_screen[0] = [input_est_screen[0][0], input_est_screen[0][1]]
@@ -501,7 +465,7 @@ def create_areas(PANE_INIT_DICT, input_est_screen):
                     if ('cut_est' not in PANE_INIT_DICT[elem]) or PANE_INIT_DICT[elem]['cut_est']:
                         est_screen = None
 
-
+#Создание объектов Pane() по хешу интерфейса
 def create_panes(PANE_INIT_DICT, PANE_DICT, IMAGE_DICT):
     for pane_name in PANE_INIT_DICT:
         PANE_DICT[PANE_INIT_DICT[pane_name]['pane_type']] = Pane(PANE_INIT_DICT, pane_name, PANE_INIT_DICT[pane_name]['pane_type'])

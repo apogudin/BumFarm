@@ -26,9 +26,6 @@ class BusStation():
                 'action': self.lvl,
                 'item': self,
             }]
-                           #'pane': pane,
-                    #'image': 'Button_Menu_Shop.png',
-                    #'button_dict':
 
     def tile_to_default(self):
         self.tile = [
