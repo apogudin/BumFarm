@@ -76,6 +76,11 @@ PANE_INIT_DICT = {
                     'name': '',
                     'action': Worker.switch,
                     'item': None,
+                },
+                {
+                    'name': '',
+                    'action': Worker.switch,
+                    'item': None,
                 }
                 ]
             }
@@ -109,10 +114,10 @@ PANE_INIT_DICT = {
                     'item': BusStation(Player),
                 },
                 {
-                    'name': 'BLDG2',
+                    'name': 'ShootingRange',
                     'action': Worker.switch,
                     'item_image': 'Build1.png',
-                    'item': BusStation(Player),
+                    'item': ShootingRange(Player),
                 },
                 {
                     'name': 'BLDG3',
@@ -232,9 +237,29 @@ PANE_INIT_DICT = {
                 'alignment': 'bottom',
                 'button_size':[100,20],
                 'percent': 33,
-                'cut_est': False,
+                'cut_est': True,
                 'font': Font12,
                 'button_obj_list': [],
+                'rebuild': True,
+                'button_dict': None
+            },
+            'menu:text:info_screen':{
+                'order': 3,
+                'draw': False,
+                'area': [],
+                'button_obj_list': [],
+                'alignment': 'bottom',
+                'percent': 50,
+                'cut_est': True,
+                'button_dict': None
+            },
+            'menu:text:header':{
+                'order': 4,
+                'draw': False,
+                'area': [],
+                'button_obj_list': [],
+                'alignment': 'all',
+                'cut_est': True,
                 'rebuild': True,
                 'button_dict': None
             },
@@ -284,12 +309,10 @@ Bums = Bum()
 Farm_EUR = Farm(Worker, Pane_Map) #массив со зданиями
 
 #Текст. В работе.
-Text01 = Text(Font25, PANE_INIT_DICT['HEAD']['buttons_area']['resources']['button_obj_list'], 'type')
-Text02 = Text(Font25, [[850, 100], [850, 150], [850, 200]])
+Txt_Resourses = Text(Font25, PANE_INIT_DICT['HEAD']['buttons_area']['resources']['button_obj_list'], screen)
+Txt_Info_Screen = Text(Font25, PANE_INIT_DICT['MENU']['buttons_area']['menu:text:info_screen']['area'], screen, area = True)
+
 
 # BUG: Записываем в некоторые объекты общие переменные. Кажется, это костыль.
 Pane_Map.screen = screen
 Farm_EUR.screen = screen
-
-for text in TEXT_LIST:
-    text.screen  = screen

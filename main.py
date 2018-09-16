@@ -78,7 +78,6 @@ while Worker.interface_state['continue_game']:
             PANE_INIT_DICT[pane]['pane_obj'].draw()
         if PANE_INIT_DICT[pane]['buttons_area'] is not None:
             for button_area in PANE_INIT_DICT[pane]['buttons_area']:
-                        #
                 for button in PANE_INIT_DICT[pane]['buttons_area'][button_area]['button_obj_list']:
                     if PANE_INIT_DICT[pane]['buttons_area'][button_area]['draw']:
                         button.draw()
@@ -86,13 +85,11 @@ while Worker.interface_state['continue_game']:
     #Text_Alert(alert, 25, win_size[1], Font25, screen)
 
     #Текст: Ресурсы
-    Text01.draw([str(Player.resources['coins']), str(Player.resources['bums']['EUR']),str(Player.resources['reputation'])])
+    Txt_Resourses.draw([str(Player.resources['coins']), str(Player.resources['bums']['EUR']),str(Player.resources['reputation']),str(Player.resources['total_bums'])])
 
-    #Текст: Инфо о постройке
     if PANE_INIT_DICT['MENU']['buttons_area']['menu:building']['draw']:
-            Text02.draw([str(Worker.item_state['item'].objects_dict[Worker.item_state['item_id']]['bums'])+' бомжей',
-            str(Worker.item_state['item'].objects_dict[Worker.item_state['item_id']]['limit'])+' лимит бомжей',
-            str(Worker.item_state['item'].objects_dict[Worker.item_state['item_id']]['lvl'])+' уровень'])
+        Worker.text_info_screen(Txt_Info_Screen)
+        
     pygame.display.flip()
 
 pygame.quit()

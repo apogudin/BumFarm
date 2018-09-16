@@ -193,7 +193,6 @@ class Farm():
                         # BUG: Временно оставлено - для рисования камней
                         else:
                             image.draw(pos_x, pos_y, [4,4], [0, self.tile_info[j][i]['rotate']])
-                        #    print (self.tile_info[j][i]['new_rotate'], self.tile_info[j][i]['img_obj_bind'].objects_dict[self.tile_info[j][i]['img_obj_bind_id']]['frame_start']+frame)
 
     def Activate(self, mouse_pos):
         pos = self.WhoIsOn(mouse_pos)
@@ -259,6 +258,18 @@ class Actor ():
             'continue_game': True
         }
 
+    def text_info_screen(self, Txt_Obj):
+        text_output = []
+        item = self.item_state['item']
+        info_screen = item.info_screen
+        item_ID = item.objects_dict[self.item_state['item_id']]
+
+        for i in range(len(info_screen)):
+            text_output.append(
+            info_screen[i]['display_name'] + str(item_ID[info_screen[i]['attr']])
+            )
+        Txt_Obj.draw(text_output)
+
     def switch(self, params):
         pane = params['switch'][0]
         switch_group = params['switch'][1]
@@ -288,39 +299,62 @@ class Actor ():
 
 #Для более удобной работы с текстом. В разработке
 class Text():
-    def __init__(self, font, pos_list, text_type = None):
+    def __init__(self, font, input_list, screen, area = False):
         #либо указываем напрямую список позиций pos_list,
         #либо передаём список объектов и указываем их тип (для типов тут прописаны специфики расположения)
-        TEXT_LIST.append(self)
+        #TEXT_LIST.append(self)
         self.font = font
-        self.screen = None
-        self.text_type = text_type
-        self.pos_list = pos_list
-        if text_type is not None:
-            self.obj_pos_list = [obj.pos() for obj in pos_list]
-            self.obj_size_list = [obj.get_size() for obj in pos_list]
+        self.screen = screen
+        self.is_area = area
+        if self.is_area:
+            self.area = input_list
+        else:
+            self.obj_list = input_list
+
+
 
     def draw(self, text_list, event = None, duration = None):
+        text_list = [self.font.render(text, True, [0,0,0]) for text in text_list]
+        self.pos_list = []
 
-        self.text_list = [self.font.render(text, True, [0,0,0]) for text in text_list]
+        if self.is_area:
+            interline = 1.5
+            area_w = self.area[1][0] - self.area[0][0]
 
-        if self.text_type is None:
-            self.pos_list = self.pos_list
+            max_w = 0
+            for text in text_list:
+                w = text.get_width()
+                if w > max_w:
+                    max_w = w
+            left_x = self.area[0][0] + (area_w/2 - max_w/2)
+
+            area_h = self.area[1][1] - self.area[0][1]
+            max_h = text_list[0].get_height()
+            dy = max_h * (interline + 1)
+            all_h = max_h + len(text_list) * dy
+            top_y = self.area[0][1] + (area_h - all_h) / 2
+
+            for i in range(len(text_list)):
+                self.pos_list.append([
+                left_x,
+                top_y + i * dy
+                ])
+
+            #return self.pos_list
         else:
-            self.pos_list = []
-            if self.text_type == 'head':
-                pass
-            elif self.text_type is not None:
-                #Для любого указанного, но непрописанного type ставим по центру
-                for i in range(len(self.text_list)):
-                    self.pos_list.append([
-                        self.obj_pos_list[i][0] + (self.obj_size_list[i][0]/2 - self.text_list[i].get_width()/2),
-                        self.obj_pos_list[i][1] +(self.obj_size_list[i][1]/2 - self.text_list[i].get_height()/2)
-                        ])
+            obj_pos_list = [obj.pos() for obj in self.obj_list]
+            obj_size_list = [obj.get_size() for obj in self.obj_list]
 
-        for i in range(len(self.text_list)):
-            self.screen.blit(self.text_list[i], self.pos_list[i])
-        #for ... pos_list ... blit..
+            for i in range(len(text_list)):
+                self.pos_list.append([
+                    obj_pos_list[i][0] + (obj_size_list[i][0]/2 - text_list[i].get_width()/2),
+                    obj_pos_list[i][1] +(obj_size_list[i][1]/2 - text_list[i].get_height()/2)
+                    ])
+
+
+
+        for i in range(len(text_list)):
+            self.screen.blit(text_list[i], self.pos_list[i])
 
 
 #Рандомайзер препятствий на карте
@@ -472,7 +506,8 @@ def create_areas(PANE_INIT_DICT, input_est_screen):
                         est_screen[1][0] -= PANE_INIT_DICT[elem]['width']
 
                 elif PANE_INIT_DICT[elem]['alignment'] == 'all':
-                    created_area = est_screen
+                    created_area[0] = [est_screen[0][0], est_screen[0][1]]
+                    created_area[1] = [est_screen[1][0], est_screen[1][1]]
                     PANE_INIT_DICT[elem]['area'] = created_area
                     if ('cut_est' not in PANE_INIT_DICT[elem]) or PANE_INIT_DICT[elem]['cut_est']:
                         est_screen = None
