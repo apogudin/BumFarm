@@ -51,8 +51,11 @@ def Check_All (PANE_INIT_DICT, mouse_pos, activate = False):
                         if activate:
                             if button.IsOn(mouse_pos):
                                 button.Activate()
+                                return button.params
                         else:
                             button.IsOn(mouse_pos)
+
+
 
 #Поворот здания: поворачивает матрицу тайлов по/против часовой стрелки.
 def rotate_build(matrix, right = False):

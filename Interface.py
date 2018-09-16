@@ -31,7 +31,7 @@ class Button():
         self.name = name
         self.item = item
         self.state = 'off'
-        self.params = {'item_id': None}
+        self.params = {'item_id': None, 'rebuild': False}
 
     def IsOn (self, mouse_pos):
         if (self.pos_x < mouse_pos[0] < self.pos_x + self.width) :
@@ -52,7 +52,8 @@ class Button():
             self.Worker.item_state['item'] = self.item
         self.params['item'] = self.Worker.item_state['item']
         self.params['item_id'] = self.Worker.item_state['item_id']
-        return self.action(self.params)
+        self.action(self.params)
+        return self.params
 
     def get_size(self):
         return [self.width, self.height]
@@ -143,13 +144,13 @@ class Farm():
         pos_row = pos[0] - obj.pivot[0]
         pos_col = pos[1] - obj.pivot[1]
 
-        #Записали в объект новый элемент, например '0:0': [bums, limit, lvl]
+        #Записали в объект новый элемент, например 'r1c2r1c3r1c4': [bums, limit, lvl]
         item_id=''
         for j in range(pos_row, pos_row+obj_size):
             for i in range(pos_col, pos_col+obj_size):
                 item_id += 'r' + str(j) + 'c' + str(i)
         obj.objects_dict[item_id] = {}
-        obj.set_default(item_id)
+        obj.SetNewID(item_id)
 
         #Записали в массив новый объект
         for j in range(obj_size):
@@ -191,16 +192,18 @@ class Farm():
         elif obj is not None:
             self.worker.item_state['item'] = obj
             self.worker.item_state['item_id'] = self.tile_info[pos[0]][pos[1]]['id']
-
             self.worker.switch({'switch': ('MENU', 'menu:building')})
-            return obj.button_dict
+            if obj.objects_dict[self.worker.item_state['item_id']]['lvl'] < len(obj.lvl_list):
+                return obj.button_dict
+            else:
+                return obj.button_dict_limited
 
 #Для более удобной работы с изображениями. Кропаем, застилаем, пишем в объекты.
 #Object_list должен содержать объекты, пренадлежащие одной группе
 class Image():
     def __init__(self, image, object_list = [], folder = 'images', screen=None):
 
-        if hasattr(object_list[0], 'pane_type'):
+        if len(object_list) >= 1 and hasattr(object_list[0], 'pane_type'):
             if object_list[0].pane_type not in IMAGE_DICT:
                 IMAGE_DICT[object_list[0].pane_type] = []
             IMAGE_DICT[object_list[0].pane_type].append(self)
@@ -384,11 +387,14 @@ def create_buttons (buttons_area, pane_button_group, IMAGE_DICT):
     IMAGE_DICT[pane_button_group] = []
 
     for Butt in button_dict:
+        # BUG: Пора бы упаковать параметры нормально
         buttons_area[pane_button_group]['button_obj_list'].append(Button(Butt['name'], Butt['action']))
         buttons_area[pane_button_group]['button_obj_list'][i].item = Butt['item']
         buttons_area[pane_button_group]['button_obj_list'][i].screen = buttons_area[pane_button_group]['screen']
         buttons_area[pane_button_group]['button_obj_list'][i].font = buttons_area[pane_button_group]['font']
         buttons_area[pane_button_group]['button_obj_list'][i].Worker = buttons_area[pane_button_group]['Worker']
+        if 'rebuild' in buttons_area[pane_button_group]:
+            buttons_area[pane_button_group]['button_obj_list'][i].params['rebuild'] = buttons_area[pane_button_group]['rebuild']
         if 'switch' in buttons_area[pane_button_group]:
             buttons_area[pane_button_group]['button_obj_list'][i].params['switch'] = buttons_area[pane_button_group]['switch']
         if 'button_image' not in buttons_area[pane_button_group]:

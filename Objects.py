@@ -1,28 +1,29 @@
 from MyFunctions import *
 
-
 class BusStation():
     #Здание - остановка
-    def __init__(self):
+    def __init__(self, user):
+        self.user = user
         self.cost = 25
-        self.limit = 0
-        self.level = 1
-        self.Bums = 0
-        self.amount = 0
+
+        self.bums_p_sec = 0,3
+        self.lvl_limit = 3
+
         self.tile_to_default()
         self.objects_dict = {}
         self.img = None
+        self.lvl_list = [
+        {'lvl': 1, 'cost': 0, 'bums':0, 'limit': 10, 'bps': 0.3, 'cash': 0},
+        {'lvl': 2, 'cost': 100, 'limit': 50, 'bps': 1},
+        {'lvl': 3, 'cost': 1000, 'limit': 200, 'bps': 5},
+        ]
         self.button_dict = [
-            {
-                'name': 'BUY',
-                'action': self.set,
-                'item': self,
-            },
             {
                 'name': 'LEVEL',
                 'action': self.lvl,
                 'item': self,
             }]
+        self.button_dict_limited = []
 
     def tile_to_default(self):
         self.tile = [
@@ -31,9 +32,11 @@ class BusStation():
         [0, 0, 0]
         ]
         self.pivot = [1,1]
-    def set_default(self, item_id):
-        self.objects_dict[item_id].update({'bums':0, 'limit': 10,'lvl': 1})
+    def SetNewID(self, item_id):
+        self.objects_dict[item_id].update(self.lvl_list[0])
 
+        if self not in self.user.property_list['EUR']:
+            self.user.property_list['EUR'].append(self)
 
     def set(self, item_state):
         print(item_state)
@@ -43,23 +46,13 @@ class BusStation():
         self.objects_dict[item_state['item_id']]['lvl'] += 1
         self.objects_dict[item_state['item_id']]['limit'] += 10
 
-    def levelUp():
-        self.levelUp += 1
-        self.limit += 5
-    def buy(self):
-        self.amount += 1
-        self.limit += 5
-    def setBum(self):
-        self.Bums += 1
-    def rotate(self):
-        pass
-    def build():
-        #Добавление в словарь нового объекта
-        pass
-    def delete():
-        pass
-    def upgrade():
-        pass
+#Проходится по всем своим объектам, считает прибыль
+    def resources_income(self):
+        bums_income = 0
+
+
+        self.user.resources['bums']['EUR'] += bums_income
+
 
 
 class Bum():
@@ -88,12 +81,17 @@ class User():
     def __init__(self):
         self.resources = {
         'coins': 0,
+        'reputation': 0,
         'bums': {
             'EUR': 0,
-            'NAM': 0,
-            'SAM': 0,
-            'AFR': 0,
-            'AUS': 0,
-            'ANT': 0,
         },
         }
+        self.property_list = {
+            'EUR': [],
+        }
+
+#Просит все свои объекты посчитать поступления
+    def resources_income(self):
+        for country in self.property_list:
+            for obj in self.property_list[country]:
+                obj.resources_income()

@@ -14,9 +14,9 @@ Font25 = pygame.font.SysFont('Colibri', 20)
 Font12 = pygame.font.SysFont('Colibri', 12)
 #Время
 clock = pygame.time.Clock()
-Time1sec = pygame.USEREVENT+1
+Timer1Sec = pygame.USEREVENT+1
 Alert_Event = pygame.USEREVENT+2
-pygame.time.set_timer(Time1sec, 1000)
+pygame.time.set_timer(Timer1Sec, 1000)
 #Окно
 screen = pygame.display.set_mode(win_size)
 pygame.display.set_caption('Бомжеферма')
@@ -106,61 +106,61 @@ PANE_INIT_DICT = {
                     'name': 'STATION',
                     'action': Worker.switch,
                     'item_image': 'Build1.png',
-                    'item': BusStation(),
+                    'item': BusStation(Player),
                 },
                 {
                     'name': 'BLDG2',
                     'action': Worker.switch,
                     'item_image': 'Build1.png',
-                    'item': BusStation(),
+                    'item': BusStation(Player),
                 },
                 {
                     'name': 'BLDG3',
                     'action': Worker.switch,
                     'item_image': 'Build1.png',
-                    'item': BusStation(),
+                    'item': BusStation(Player),
                 },
                 {
                     'name': 'BLDG4',
                     'action': Worker.switch,
                     'item_image': 'Build1.png',
-                    'item': BusStation(),
+                    'item': BusStation(Player),
                 },
                 {
                     'name': 'BLDG5',
                     'action': Worker.switch,
                     'item_image': 'Build1.png',
-                    'item': BusStation(),
+                    'item': BusStation(Player),
                 },
                 {
                     'name': 'BLDG6',
                     'action': Worker.switch,
                     'item_image': 'Build1.png',
-                    'item': BusStation(),
+                    'item': BusStation(Player),
                 },
                 {
                     'name': 'BLDG7',
                     'action': Worker.switch,
                     'item_image': 'Build1.png',
-                    'item': BusStation(),
+                    'item': BusStation(Player),
                 },
                 {
                     'name': 'BLDG8',
                     'action': Worker.switch,
                     'item_image': 'Build1.png',
-                    'item': BusStation(),
+                    'item': BusStation(Player),
                 },
                 {
                     'name': 'BLDG9',
                     'action': Worker.switch,
                     'item_image': 'Build1.png',
-                    'item': BusStation(),
+                    'item': BusStation(Player),
                 },
                 {
                     'name': 'BLDG10',
                     'action': Worker.switch,
                     'item_image': 'Build1.png',
-                    'item': BusStation(),
+                    'item': BusStation(Player),
                 }
                 ]
             },
@@ -235,6 +235,7 @@ PANE_INIT_DICT = {
                 'cut_est': False,
                 'font': Font12,
                 'button_obj_list': [],
+                'rebuild': True,
                 'button_dict': None
             },
         }
@@ -280,7 +281,7 @@ Obstacle_Stones = Obstacle('Stone.png', screen)
 #Игровые объекты
 Budget = Coins()
 Bums = Bum()
-Farm_RUS = Farm(Worker, Pane_Map) #массив со зданиями
+Farm_EUR = Farm(Worker, Pane_Map) #массив со зданиями
 
 #Текст. В работе.
 Text01 = Text(Font25, PANE_INIT_DICT['HEAD']['buttons_area']['resources']['button_obj_list'], 'type')
@@ -288,7 +289,7 @@ Text02 = Text(Font25, [[850, 100], [850, 150], [850, 200]])
 
 # BUG: Записываем в некоторые объекты общие переменные. Кажется, это костыль.
 Pane_Map.screen = screen
-Farm_RUS.screen = screen
+Farm_EUR.screen = screen
 
 for text in TEXT_LIST:
     text.screen  = screen

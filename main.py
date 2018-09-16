@@ -1,7 +1,7 @@
 from Var_Init import *
 
-
-Obstacle_Stones.rand_stones(Farm_RUS.tile_info, 20)
+Obstacle_Stones.rand_stones(Farm_EUR.tile_info, 20)
+active_tile = None
 
 while Worker.interface_state['continue_game']:
     clock.tick(60)
@@ -16,16 +16,19 @@ while Worker.interface_state['continue_game']:
             if event.type == pygame.MOUSEMOTION:
                 Check_All(PANE_INIT_DICT, mouse_pos)
             elif event.type == pygame.MOUSEBUTTONDOWN:
-
                 if Pane_Map.IsOn(mouse_pos):
-                    active_tile = Farm_RUS.Activate(mouse_pos)
-                    PANE_INIT_DICT['MENU']['buttons_area']['menu:building']['button_dict'] = active_tile
+                    active_tile = Farm_EUR.Activate(mouse_pos)
                     if active_tile is not None:
+                        PANE_INIT_DICT['MENU']['buttons_area']['menu:building']['button_dict'] = active_tile
                         create_buttons(PANE_INIT_DICT['MENU']['buttons_area'], 'menu:building', IMAGE_DICT)
                     else:
                         Worker.clear_buttons_areas(PANE_INIT_DICT, 'MENU')
                 else:
-                    Check_All(PANE_INIT_DICT, mouse_pos, True)
+                    button_params = Check_All(PANE_INIT_DICT, mouse_pos, True)
+                    if button_params is not None and button_params['rebuild']:
+                        if Worker.item_state['item'].objects_dict[Worker.item_state['item_id']]['lvl'] >= len( Worker.item_state['item'].lvl_list):
+                            PANE_INIT_DICT['MENU']['buttons_area']['menu:building']['button_dict'] = Worker.item_state['item'].button_dict_limited
+                            create_buttons(PANE_INIT_DICT['MENU']['buttons_area'], 'menu:building', IMAGE_DICT)
 
         #Режим строительства
         else:
@@ -41,14 +44,15 @@ while Worker.interface_state['continue_game']:
                 Worker.item_state['item'].tile = rotate_build(Worker.item_state['item'].tile)
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                if Farm_RUS.can_build(mouse_pos) and Pane_Map.IsOn(mouse_pos):
-                    Farm_RUS.add(mouse_pos)
+                if Farm_EUR.can_build(mouse_pos) and Pane_Map.IsOn(mouse_pos):
+                    Farm_EUR.add(mouse_pos)
                 else:
                     Check_All(PANE_INIT_DICT, mouse_pos, True)
                 Worker.switch_constructing_mode()
 
-#        if event.type == Time1sec:
-#            Budget.income(Bums.amount*10)
+        if event.type == Timer1Sec:
+            Player.resources_income()
+            #Budget.income(Bums.amount*10)
 #        if event.type == Alert_Event:
 #            alert = ''
 
@@ -57,10 +61,10 @@ while Worker.interface_state['continue_game']:
 
     #Отрисовка контура здания в режиме строительства
     if  Worker.interface_state['constructing_mode'] and hasattr(Worker.item_state['item'], 'img') and Pane_Map.IsOn(mouse_pos):
-        pos_y, pos_x = Farm_RUS.WhoIsOn(mouse_pos)
+        pos_y, pos_x = Farm_EUR.WhoIsOn(mouse_pos)
         pos_x = (pos_x - Pane_Map.NULL_tile_draw[0] - Worker.item_state['item'].pivot[1]) * Pane_Map.tile_size + Pane_Map.NULL_draw[0]
         pos_y = (pos_y - Pane_Map.NULL_tile_draw[1] - Worker.item_state['item'].pivot[0]) * Pane_Map.tile_size + Pane_Map.NULL_draw[1]
-        if Farm_RUS.can_build(mouse_pos):
+        if Farm_EUR.can_build(mouse_pos):
             Worker.item_state['item'].img.draw(pos_x, pos_y, [4,4],[1,Worker.item_rotate])
         else:
             Worker.item_state['item'].img.draw(pos_x, pos_y, [4,4],[0,Worker.item_rotate])
@@ -79,7 +83,7 @@ while Worker.interface_state['continue_game']:
     #Text_Alert(alert, 25, win_size[1], Font25, screen)
 
     #Текст: Ресурсы
-    Text01.draw([str(Budget.amount), str(Bums.amount), str(Bums.amount)])
+    Text01.draw([str(Player.resources['coins']), str(Player.resources['bums']['EUR']),str(Player.resources['reputation'])])
 
     #Текст: Инфо о постройке
     if PANE_INIT_DICT['MENU']['buttons_area']['menu:building']['draw']:
