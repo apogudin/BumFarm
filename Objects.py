@@ -1,19 +1,18 @@
 from MyFunctions import *
 
+#Майнер бомжей
 class BusStation():
-    #Здание - остановка
     def __init__(self, user):
         self.user = user
         self.cost = 25
 
         self.bums_p_sec = 0,3
         self.lvl_limit = 3
-
         self.tile_to_default()
         self.objects_dict = {}
         self.img = None
         self.lvl_list = [
-        {'lvl': 1, 'cost': 0, 'bums':0, 'limit': 10, 'bps': 0.3, 'cash': 0},
+        {'lvl': 1, 'cost': 0, 'bums':0, 'limit': 10, 'bps': 0.3, 'bum_cash': 0, 'frame_start': 2},
         {'lvl': 2, 'cost': 100, 'limit': 50, 'bps': 1},
         {'lvl': 3, 'cost': 1000, 'limit': 200, 'bps': 5},
         ]
@@ -22,8 +21,20 @@ class BusStation():
                 'name': 'LEVEL',
                 'action': self.lvl,
                 'item': self,
-            }]
-        self.button_dict_limited = []
+            },
+            {
+                'name': 'GRAB',
+                'action': self.GrabBums,
+                'item': self,
+            },
+            ]
+        self.button_dict_limited = [
+            {
+                'name': 'GRAB',
+                'action': self.GrabBums,
+                'item': self,
+            },
+            ]
 
     def tile_to_default(self):
         self.tile = [
@@ -32,26 +43,33 @@ class BusStation():
         [0, 0, 0]
         ]
         self.pivot = [1,1]
+
     def SetNewID(self, item_id):
         self.objects_dict[item_id].update(self.lvl_list[0])
 
         if self not in self.user.property_list['EUR']:
             self.user.property_list['EUR'].append(self)
 
-    def set(self, item_state):
-        print(item_state)
-        self.objects_dict[item_state['item_id']]['bums'] += 1
+    def GrabBums(self, item_state):
+        item_id = item_state['item_id']
+        self.user.resources['bums']['EUR'] += self.objects_dict[item_id]['bums']
+        self.objects_dict[item_id]['bums'] = 0
 
     def lvl(self, item_state):
-        self.objects_dict[item_state['item_id']]['lvl'] += 1
-        self.objects_dict[item_state['item_id']]['limit'] += 10
+        new_lvl = self.objects_dict[item_state['item_id']]['lvl']
+        self.objects_dict[item_state['item_id']].update(self.lvl_list[new_lvl])
 
 #Проходится по всем своим объектам, считает прибыль
-    def resources_income(self):
-        bums_income = 0
-
-
-        self.user.resources['bums']['EUR'] += bums_income
+    def resources_update(self):
+        for ID in self.objects_dict:
+            if self.objects_dict[ID]['bums'] < self.objects_dict[ID]['limit']:
+                self.objects_dict[ID]['bum_cash'] += self.objects_dict[ID]['bps']
+                self.objects_dict[ID]['bums'] += int((self.objects_dict[ID]['bum_cash'] // 1))
+                self.objects_dict[ID]['bum_cash'] = self.objects_dict[ID]['bum_cash'] % 1
+            if self.objects_dict[ID]['bums'] / self.objects_dict[ID]['limit'] < 0.2:
+                self.objects_dict[ID]['frame_start'] = 3
+            else:
+                self.objects_dict[ID]['frame_start'] = 5
 
 
 
@@ -91,7 +109,7 @@ class User():
         }
 
 #Просит все свои объекты посчитать поступления
-    def resources_income(self):
+    def resources_update(self):
         for country in self.property_list:
             for obj in self.property_list[country]:
-                obj.resources_income()
+                obj.resources_update()

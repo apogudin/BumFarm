@@ -2,6 +2,7 @@ from Var_Init import *
 
 Obstacle_Stones.rand_stones(Farm_EUR.tile_info, 20)
 active_tile = None
+frame = 0
 
 while Worker.interface_state['continue_game']:
     clock.tick(60)
@@ -51,13 +52,15 @@ while Worker.interface_state['continue_game']:
                 Worker.switch_constructing_mode()
 
         if event.type == Timer1Sec:
-            Player.resources_income()
+            Player.resources_update()
+            frame = (frame + 1) % 3
+
             #Budget.income(Bums.amount*10)
 #        if event.type == Alert_Event:
 #            alert = ''
 
     #Отрисовка карты
-    Pane_Map.draw()
+    Pane_Map.draw(frame)
 
     #Отрисовка контура здания в режиме строительства
     if  Worker.interface_state['constructing_mode'] and hasattr(Worker.item_state['item'], 'img') and Pane_Map.IsOn(mouse_pos):
@@ -65,9 +68,9 @@ while Worker.interface_state['continue_game']:
         pos_x = (pos_x - Pane_Map.NULL_tile_draw[0] - Worker.item_state['item'].pivot[1]) * Pane_Map.tile_size + Pane_Map.NULL_draw[0]
         pos_y = (pos_y - Pane_Map.NULL_tile_draw[1] - Worker.item_state['item'].pivot[0]) * Pane_Map.tile_size + Pane_Map.NULL_draw[1]
         if Farm_EUR.can_build(mouse_pos):
-            Worker.item_state['item'].img.draw(pos_x, pos_y, [4,4],[1,Worker.item_rotate])
+            Worker.item_state['item'].img.draw(pos_x, pos_y, [12,8],[1,Worker.item_rotate])
         else:
-            Worker.item_state['item'].img.draw(pos_x, pos_y, [4,4],[0,Worker.item_rotate])
+            Worker.item_state['item'].img.draw(pos_x, pos_y, [12,8],[0,Worker.item_rotate])
 
     #Отрисовка панелей и кнопок
     for pane in PANE_INIT_DICT:
@@ -75,10 +78,10 @@ while Worker.interface_state['continue_game']:
             PANE_INIT_DICT[pane]['pane_obj'].draw()
         if PANE_INIT_DICT[pane]['buttons_area'] is not None:
             for button_area in PANE_INIT_DICT[pane]['buttons_area']:
+                        #
                 for button in PANE_INIT_DICT[pane]['buttons_area'][button_area]['button_obj_list']:
                     if PANE_INIT_DICT[pane]['buttons_area'][button_area]['draw']:
                         button.draw()
-
     #Текст: Алерты
     #Text_Alert(alert, 25, win_size[1], Font25, screen)
 

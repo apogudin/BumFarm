@@ -101,9 +101,9 @@ class Map():
         self.NULL_tile_draw = [self.NULL[0]//self.tile_size, self.NULL[1]//self.tile_size]
         self.NULL_draw = [(-1)*(self.NULL[0]%self.tile_size) + self.pane[0][0], (-1)*(self.NULL[1]%self.tile_size) + self.pane[0][1]]
 
-    def draw(self):
+    def draw(self, frame):
         Img_Fill(self.img, [self.NULL_draw, self.pane[1]], self.screen)
-        self.Building.draw()
+        self.Building.draw(frame)
 
 
 #Хранит информацию о каждой клетке: какие объекты, какие здания
@@ -159,7 +159,10 @@ class Farm():
                     self.tile_info[pos_row+j][pos_col+i]['obj'] = obj
                     self.tile_info[pos_row+j][pos_col+i]['id'] = item_id
         self.tile_info[pos_row][pos_col]['img'].append(obj.img)
-        self.tile_info[pos_row][pos_col]['rotate'] = [3,self.worker.item_rotate]
+        self.tile_info[pos_row][pos_col]['img_obj_bind'] = obj
+        self.tile_info[pos_row][pos_col]['img_obj_bind_id'] = item_id
+        #self.tile_info[pos_row][pos_col]['rotate'] = [3,self.worker.item_rotate]
+        self.tile_info[pos_row][pos_col]['rotate'] = self.worker.item_rotate
         self.worker.item_rotate = 0
         self.worker.item_state['item'].tile_to_default()
 
@@ -174,7 +177,7 @@ class Farm():
                 break
         return [pos_y, pos_x]
 
-    def draw(self):
+    def draw(self, frame):
         max_bldg_size = 2
         for j in range(self.map.NULL_tile_draw[1]-max_bldg_size, self.map.NULL_tile_draw[1]+self.map.tile_visible_NxNy[1]+1):
             for i in range(self.map.NULL_tile_draw[0]-max_bldg_size, self.map.NULL_tile_draw[0]+self.map.tile_visible_NxNy[0]+1):
@@ -182,7 +185,15 @@ class Farm():
                     pos_x = (i - self.map.NULL_tile_draw[0]) * self.map.tile_size + self.map.NULL_draw[0]
                     pos_y = (j - self.map.NULL_tile_draw[1]) * self.map.tile_size + self.map.NULL_draw[1]
                     for image in self.tile_info[j][i]['img']:
-                        image.draw(pos_x, pos_y, [4,4], self.tile_info[j][i]['rotate'])
+                        if 'img_obj_bind' in self.tile_info[j][i]:
+                            obj_frame_start_row = self.tile_info[j][i]['img_obj_bind'].objects_dict[self.tile_info[j][i]['img_obj_bind_id']]['frame_start']
+                            obj_lvl = self.tile_info[j][i]['img_obj_bind'].objects_dict[self.tile_info[j][i]['img_obj_bind_id']]['lvl']
+                            obj_rotate = self.tile_info[j][i]['rotate']
+                            image.draw(pos_x, pos_y, [12,8], [obj_frame_start_row + frame, obj_rotate + 4*(obj_lvl - 1)])
+                        # BUG: Временно оставлено - для рисования камней
+                        else:
+                            image.draw(pos_x, pos_y, [4,4], [0, self.tile_info[j][i]['rotate']])
+                        #    print (self.tile_info[j][i]['new_rotate'], self.tile_info[j][i]['img_obj_bind'].objects_dict[self.tile_info[j][i]['img_obj_bind_id']]['frame_start']+frame)
 
     def Activate(self, mouse_pos):
         pos = self.WhoIsOn(mouse_pos)
@@ -318,13 +329,14 @@ class Obstacle():
         self.img = img
         Image(img, [self], screen = screen)
 
-    def rand_stones (self, object_list, N):
+
+    def rand_stones (self, tile_info, N):
         for i in range(N):
             R_row = random.randrange(0, 19, 1)
             R_column = random.randrange(0, 19, 1)
-            object_list[R_row][R_column]['obj'] = 'Stone'
-            object_list[R_row][R_column]['img'] = [self.img]
-            object_list[R_row][R_column]['rotate'] = [0, 0]
+            tile_info[R_row][R_column]['obj'] = 'Stone'
+            tile_info[R_row][R_column]['img'] = [self.img]
+            tile_info[R_row][R_column]['rotate'] = 0
 
 
 #Записывает в кнопки окончательные координаты для рендеринга
