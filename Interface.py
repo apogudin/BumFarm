@@ -255,7 +255,7 @@ class Actor ():
         self.interface_state = {
             'map_mode': 'base',
             'constructing_mode': False,
-            'continue_game': True
+            'continue_game': True,
         }
 
     def text_info_screen(self, Txt_Obj):
@@ -298,18 +298,175 @@ class Actor ():
 
 
 #Для более удобной работы с текстом. В разработке
+#рендерит весь текст в заданной области по словарю {header:str, body:[name, atr] }
+
 class Text():
-    def __init__(self, font, input_list, screen, area = False):
+    def __init__(self, font, input_list, screen, page = None, area = False, hyph = False):
         #либо указываем напрямую список позиций pos_list,
         #либо передаём список объектов и указываем их тип (для типов тут прописаны специфики расположения)
         #TEXT_LIST.append(self)
+        self.hyph = hyph
         self.font = font
         self.screen = screen
+        self.page = page
         self.is_area = area
         if self.is_area:
             self.area = input_list
         else:
             self.obj_list = input_list
+
+    def hyphenation(self, text_list, border):
+        tmp_list = text_list[0].split()
+        area_w = self.area[1][0] - self.area[0][0] - border
+        app_len = self.font.render('a', True, [0,0,0]).get_width() #костыль! Получаем примерную ширину одного символа
+        row = 0
+        is_first = True
+        text_list = []
+
+        text_list.append(tmp_list[0] + ' ')
+
+        for word in tmp_list[1:]:
+            if (len(text_list[row]) + len(word) + 1) * app_len < area_w:
+                text_list[row] += str(word) + ' '
+                continue
+
+            else:
+                text_list.append(word + ' ')
+                row += 1
+
+        return text_list
+
+    def draw_new(self):
+        if self.is_area:
+            text_dict = self.Worker.item_state['item'].text_dict[self.page]
+            interline = 1
+            border = 10
+            area_w = self.area[1][0] - self.area[0][0]
+            area_h = self.area[1][1] - self.area[0][1]
+            max_w = 0
+
+
+            item = self.Worker.item_state['item']
+            info_screen = item.info_screen
+            item_id = self.Worker.item_state['item_id']
+
+            #text_list = [self.font.render(text, True, [0,0,0]) for text in text_list]
+            text_list = []
+            pos_list = []
+
+            if 'header' in text_dict:
+
+                #text_list ++ pos llist++
+                #изменить crop area, сделать одну новую
+                pass
+
+            for text_block in text_dict:
+                tmp_text_list = []
+                tmp_pos_list = []
+                if text_block == 'header':
+                    tmp_text_list.append(self.font.render(text_dict[text_block]['text'], True, [0,0,0]))
+
+                    txt_H = tmp_text_list[0].get_height()
+                    top_y = self.area[0][1] + border
+
+                    tmp_pos_list.append([self.area[0][0] + (area_w/2 - tmp_text_list[0].get_width()/2), top_y])
+
+                    text_list.extend(tmp_text_list)
+                    pos_list.extend(tmp_pos_list)
+
+                else:
+                    tmp_text_list = []
+                    tmp_pos_list = []
+
+
+
+                    if 'text' in text_dict[text_block]:
+                        if self.hyph:
+                            new_hyph_list = self.hyphenation(text_dict[text_block]['text'], border)
+                            for phrase in new_hyph_list:
+                                tmp_text_list.append(self.font.render(phrase, True, [0,0,0]))
+                        else:
+                            for phrase in text_dict[text_block]['text']:
+                                tmp_text_list.append(self.font.render(phrase, True, [0,0,0]))
+                    elif 'attr' in text_dict[text_block]:
+                        for attribute in text_dict[text_block]['attr']:
+                            tmp_text_list.append((self.font.render(str(item.objects_dict[item_id][attribute]), True, [0,0,0])))
+
+                    if text_dict[text_block]['alignment'] == 'left':
+                        left_x = self.area[0][0]
+                        txt_H = tmp_text_list[0].get_height()
+                        dy = txt_H * (interline + 1)
+                        all_txt_H = txt_H + len(tmp_text_list) * dy
+                        top_y = self.area[0][1] + (area_h - all_txt_H) / 2
+
+                        for i in range(len(tmp_text_list)):
+                            tmp_pos_list.append([left_x + border, top_y + i * dy])
+
+                    elif text_dict[text_block]['alignment'] == 'right':
+                        txt_H = tmp_text_list[0].get_height()
+                        dy = txt_H * (interline + 1)
+                        all_txt_H = txt_H + len(tmp_text_list) * dy
+                        top_y = self.area[0][1] + (area_h - all_txt_H) / 2
+
+                        for i in range(len(tmp_text_list)):
+                            tmp_pos_list.append([self.area[1][0] - tmp_text_list[i].get_width() - border, top_y + i * dy])
+
+                    elif text_dict[text_block]['alignment'] == 'center':
+                        txt_H = tmp_text_list[0].get_height()
+                        dy = txt_H * (interline + 1)
+                        all_txt_H = txt_H + len(tmp_text_list) * dy
+                        top_y = self.area[0][1] + (area_h - all_txt_H) / 2
+
+                        for i in range(len(tmp_text_list)):
+                            tmp_pos_list.append([self.area[0][0] + (area_w/2 - tmp_text_list[i].get_width()/2), top_y + i * dy])
+
+                    text_list.extend(tmp_text_list)
+                    pos_list.extend(tmp_pos_list)
+
+        else:
+            obj_pos_list = [obj.pos() for obj in self.obj_list]
+            obj_size_list = [obj.get_size() for obj in self.obj_list]
+
+            for i in range(len(text_list)):
+                pos_list.append([
+                    obj_pos_list[i][0] + (obj_size_list[i][0]/2 - text_list[i].get_width()/2),
+                    obj_pos_list[i][1] +(obj_size_list[i][1]/2 - text_list[i].get_height()/2)
+                    ])
+
+        for i in range(len(text_list)):
+            self.screen.blit(text_list[i], pos_list[i])
+            #print (text_list[i], pos_list[i])
+
+
+
+
+        #text_list + pos_list
+        '''
+            text_list = [self.font.render(text, True, [0,0,0]) for text in text_list]
+        self.pos_list = []
+
+        if self.is_area:
+            interline = 1.5
+            area_w = self.area[1][0] - self.area[0][0]
+
+            max_w = 0
+            for text in text_list:
+                w = text.get_width()
+                if w > max_w:
+                    max_w = w
+            left_x = self.area[0][0] + (area_w/2 - max_w/2)
+
+            area_h = self.area[1][1] - self.area[0][1]
+            max_h = text_list[0].get_height()
+            dy = max_h * (interline + 1)
+            all_h = max_h + len(text_list) * dy
+            top_y = self.area[0][1] + (area_h - all_h) / 2
+
+            for i in range(len(text_list)):
+                self.pos_list.append([left_x, top_y + i * dy])
+                #####################
+            #return self.pos_list'''
+
 
 
 

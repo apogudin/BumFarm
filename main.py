@@ -3,8 +3,10 @@ from Var_Init import *
 Obstacle_Stones.rand_stones(Farm_EUR.tile_info, 20)
 active_tile = None
 frame = 0
+fps = 0
 
 while Worker.interface_state['continue_game']:
+    fps += 1
     clock.tick(60)
     keys = pygame.key.get_pressed()
     mouse_pos = pygame.mouse.get_pos()
@@ -54,6 +56,8 @@ while Worker.interface_state['continue_game']:
         if event.type == Timer1Sec:
             Player.resources_update()
             frame = (frame + 1) % 3
+            print (fps)
+            fps = 0
 
             #Budget.income(Bums.amount*10)
 #        if event.type == Alert_Event:
@@ -87,9 +91,18 @@ while Worker.interface_state['continue_game']:
     #Текст: Ресурсы
     Txt_Resourses.draw([str(Player.resources['coins']), str(Player.resources['bums']['EUR']),str(Player.resources['reputation']),str(Player.resources['total_bums'])])
 
+    #if PANE_INIT_DICT['MENU']['buttons_area']['menu:building']['draw']:
+        #Worker.text_info_screen(Txt_Info_Screen)
+        #print (Worker.item_state['item'].annotation_dict)
     if PANE_INIT_DICT['MENU']['buttons_area']['menu:building']['draw']:
-        Worker.text_info_screen(Txt_Info_Screen)
-        
+        Txt_Info_Screen.draw_new()
+        Txt_Info_Annotation.draw_new()
+    elif PANE_INIT_DICT['MENU']['buttons_area']['menu:shop']['draw']:
+        Txt_Shop_Annotation.draw_new()
+
+    #print (Worker.interface_state['text_menu'])
+
+
     pygame.display.flip()
 
 pygame.quit()

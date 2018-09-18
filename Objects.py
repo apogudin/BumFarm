@@ -31,6 +31,35 @@ class BusStation():
                 'item': self,
             },
             ]
+        self.text_dict = {
+            'info_screen': {
+                'body': {
+                    'alignment': 'left',
+                    'text': ['Уровень: ', 'Бомжи: ', 'Предел бомжей: ']
+                },
+                'body_val': {
+                    'alignment': 'right',
+                    'attr': ['lvl', 'bums', 'limit']
+                }
+            },
+            'info_annotation': {
+                'header': {
+                    'alignment': 'center',
+                    'text': 'Остановка'
+                },
+                'text': {
+                    'alignment': 'left',
+                    'text': ['Место респауна бомжей. Прибывают до тех пор, пока не закончится место.']
+                },
+            },
+            'shop_annotation': {
+                'text': {
+                    'alignment': 'left',
+                    'text': ['Обычная такая автобусная остановка в трущобах, на которой любят скапливаться бомжи и обблёвывать всё вокруг.']
+                },
+            },
+        }
+
         self.info_screen = [
         {'display_name': 'Уровень: ',
         'attr': 'lvl'},

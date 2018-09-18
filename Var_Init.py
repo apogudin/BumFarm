@@ -253,7 +253,7 @@ PANE_INIT_DICT = {
                 'cut_est': True,
                 'button_dict': None
             },
-            'menu:text:header':{
+            'menu:text:info_annotation':{
                 'order': 4,
                 'draw': False,
                 'area': [],
@@ -310,7 +310,15 @@ Farm_EUR = Farm(Worker, Pane_Map) #массив со зданиями
 
 #Текст. В работе.
 Txt_Resourses = Text(Font25, PANE_INIT_DICT['HEAD']['buttons_area']['resources']['button_obj_list'], screen)
-Txt_Info_Screen = Text(Font25, PANE_INIT_DICT['MENU']['buttons_area']['menu:text:info_screen']['area'], screen, area = True)
+Txt_Info_Screen = Text(Font25, PANE_INIT_DICT['MENU']['buttons_area']['menu:text:info_screen']['area'], screen, page = 'info_screen', area = True)
+Txt_Info_Annotation = Text(Font25, PANE_INIT_DICT['MENU']['buttons_area']['menu:text:info_annotation']['area'], screen,  page = 'info_annotation', area = True, hyph = True)
+Txt_Shop_Annotation = Text(pygame.font.SysFont('Colibri', 20), PANE_INIT_DICT['MENU']['buttons_area']['menu:main']['area'], screen,  page = 'shop_annotation', area = True, hyph = True)
+
+Txt_Info_Screen.Worker = Worker
+Txt_Info_Annotation.Worker = Worker
+Txt_Shop_Annotation.Worker = Worker
+
+
 
 
 # BUG: Записываем в некоторые объекты общие переменные. Кажется, это костыль.
