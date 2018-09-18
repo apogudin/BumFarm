@@ -274,6 +274,9 @@ class Actor ():
         pane = params['switch'][0]
         switch_group = params['switch'][1]
 
+        if switch_group == 'menu:text:resources':
+            self.user.text_dict['res_annotation']['text']['text'] = self.user.texts[params['res_annotation']]
+
         for button_area in self.PANE_INIT_DICT[pane]['buttons_area']:
             if button_area == switch_group:
                 self.PANE_INIT_DICT[pane]['buttons_area'][button_area]['draw'] = True
@@ -301,19 +304,26 @@ class Actor ():
 #рендерит весь текст в заданной области по словарю {header:str, body:[name, atr] }
 
 class Text():
-    def __init__(self, font, input_list, screen, page = None, area = False, hyph = False):
+    def __init__(self, font, input_list, screen, page = None, area = False, hyph = False, static = False, Worker = None):
         #либо указываем напрямую список позиций pos_list,
         #либо передаём список объектов и указываем их тип (для типов тут прописаны специфики расположения)
-        #TEXT_LIST.append(self)
+        self.Worker = Worker
         self.hyph = hyph
         self.font = font
         self.screen = screen
         self.page = page
         self.is_area = area
+        self.static = static
+        self.draw_text_list = []
+        self.draw_pos_list = []
+
         if self.is_area:
             self.area = input_list
         else:
-            self.obj_list = input_list
+            self.obj_list = input_list['obj_list']
+            self.text_dict = input_list['text']
+
+
 
     def hyphenation(self, text_list, border):
         tmp_list = text_list[0].split()
@@ -337,6 +347,8 @@ class Text():
         return text_list
 
     def draw_new(self):
+        text_list = []
+        pos_list = []
         if self.is_area:
             text_dict = self.Worker.item_state['item'].text_dict[self.page]
             interline = 1
@@ -345,17 +357,11 @@ class Text():
             area_h = self.area[1][1] - self.area[0][1]
             max_w = 0
 
-
             item = self.Worker.item_state['item']
-            info_screen = item.info_screen
+            #info_screen = item.info_screen
             item_id = self.Worker.item_state['item_id']
 
-            #text_list = [self.font.render(text, True, [0,0,0]) for text in text_list]
-            text_list = []
-            pos_list = []
-
             if 'header' in text_dict:
-
                 #text_list ++ pos llist++
                 #изменить crop area, сделать одну новую
                 pass
@@ -370,15 +376,12 @@ class Text():
                     top_y = self.area[0][1] + border
 
                     tmp_pos_list.append([self.area[0][0] + (area_w/2 - tmp_text_list[0].get_width()/2), top_y])
-
                     text_list.extend(tmp_text_list)
                     pos_list.extend(tmp_pos_list)
 
                 else:
                     tmp_text_list = []
                     tmp_pos_list = []
-
-
 
                     if 'text' in text_dict[text_block]:
                         if self.hyph:
@@ -426,50 +429,42 @@ class Text():
         else:
             obj_pos_list = [obj.pos() for obj in self.obj_list]
             obj_size_list = [obj.get_size() for obj in self.obj_list]
+            tmp_text_list = []
+            tmp_pos_list = []
 
-            for i in range(len(text_list)):
-                pos_list.append([
-                    obj_pos_list[i][0] + (obj_size_list[i][0]/2 - text_list[i].get_width()/2),
-                    obj_pos_list[i][1] +(obj_size_list[i][1]/2 - text_list[i].get_height()/2)
+            for i in range(len(self.text_dict['text_list'])):
+                tmp_text_list.append(self.font.render(str(self.text_dict[self.text_dict['text_list'][i]]), True, [0,0,0]))
+
+
+                tmp_pos_list.append([
+                    obj_pos_list[i][0] + (obj_size_list[i][0]/2 - tmp_text_list[i].get_width()/2),
+                    obj_pos_list[i][1] +(obj_size_list[i][1]/2 - tmp_text_list[i].get_height()/2)
                     ])
 
-        for i in range(len(text_list)):
-            self.screen.blit(text_list[i], pos_list[i])
-            #print (text_list[i], pos_list[i])
+            text_list.extend(tmp_text_list)
+            pos_list.extend(tmp_pos_list)
+
+        return text_list, pos_list
+
+
+    def draw (self):
+        #Если текст статичный, то используем один раз заготовленные списки, а не делаем их заново
+        if self.static:
+            if len(self.draw_text_list):
+                for i in range(len(self.draw_text_list)):
+                    self.screen.blit(self.draw_text_list[i], self.draw_pos_list[i])
+            else:
+                self.draw_text_list, self.draw_pos_list = self.draw_new()
+                self.draw()
+                print ('ONE TIME')
+        else:
+            self.draw_text_list, self.draw_pos_list = self.draw_new()
+            for i in range(len(self.draw_text_list)):
+                self.screen.blit(self.draw_text_list[i], self.draw_pos_list[i])
 
 
 
-
-        #text_list + pos_list
-        '''
-            text_list = [self.font.render(text, True, [0,0,0]) for text in text_list]
-        self.pos_list = []
-
-        if self.is_area:
-            interline = 1.5
-            area_w = self.area[1][0] - self.area[0][0]
-
-            max_w = 0
-            for text in text_list:
-                w = text.get_width()
-                if w > max_w:
-                    max_w = w
-            left_x = self.area[0][0] + (area_w/2 - max_w/2)
-
-            area_h = self.area[1][1] - self.area[0][1]
-            max_h = text_list[0].get_height()
-            dy = max_h * (interline + 1)
-            all_h = max_h + len(text_list) * dy
-            top_y = self.area[0][1] + (area_h - all_h) / 2
-
-            for i in range(len(text_list)):
-                self.pos_list.append([left_x, top_y + i * dy])
-                #####################
-            #return self.pos_list'''
-
-
-
-
+    '''
     def draw(self, text_list, event = None, duration = None):
         text_list = [self.font.render(text, True, [0,0,0]) for text in text_list]
         self.pos_list = []
@@ -512,7 +507,7 @@ class Text():
 
         for i in range(len(text_list)):
             self.screen.blit(text_list[i], self.pos_list[i])
-
+    '''
 
 #Рандомайзер препятствий на карте
 class Obstacle():
@@ -596,6 +591,9 @@ def create_buttons (buttons_area, pane_button_group, IMAGE_DICT):
         buttons_area[pane_button_group]['button_obj_list'][i].screen = buttons_area[pane_button_group]['screen']
         buttons_area[pane_button_group]['button_obj_list'][i].font = buttons_area[pane_button_group]['font']
         buttons_area[pane_button_group]['button_obj_list'][i].Worker = buttons_area[pane_button_group]['Worker']
+        if 'params' in Butt:
+            buttons_area[pane_button_group]['button_obj_list'][i].params.update(Butt['params'])
+
         if 'rebuild' in buttons_area[pane_button_group]:
             buttons_area[pane_button_group]['button_obj_list'][i].params['rebuild'] = buttons_area[pane_button_group]['rebuild']
         if 'switch' in buttons_area[pane_button_group]:

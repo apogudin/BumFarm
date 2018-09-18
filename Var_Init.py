@@ -55,7 +55,7 @@ PANE_INIT_DICT = {
             'resources':{
                 'order': 1,
                 'draw': True,
-                'switch': ('MENU', 'menu:resources'),
+                'switch': ('MENU', 'menu:text:resources'),
                 'button_image': 'Button_Head.png',
                 'area': [],
                 'alignment': 'all',
@@ -65,22 +65,26 @@ PANE_INIT_DICT = {
                 {
                     'name': '',
                     'action': Worker.switch,
-                    'item': None,
+                    'item': Player,
+                    'params': {'res_annotation': 'coins'}
                 },
                 {
                     'name': '',
                     'action': Worker.switch,
-                    'item': None,
+                    'item': Player,
+                    'params': {'res_annotation': 'bums'}
                 },
                 {
                     'name': '',
                     'action': Worker.switch,
-                    'item': None,
+                    'item':Player,
+                    'params': {'res_annotation': 'reputation'}
                 },
                 {
                     'name': '',
                     'action': Worker.switch,
-                    'item': None,
+                    'item': Player,
+                    'params': {'res_annotation': 'total_bums'}
                 }
                 ]
             }
@@ -243,8 +247,20 @@ PANE_INIT_DICT = {
                 'rebuild': True,
                 'button_dict': None
             },
-            'menu:text:info_screen':{
+
+            'menu:text:resources':{
                 'order': 3,
+                'draw': False,
+                'area': [],
+                'button_obj_list': [],
+                'alignment': 'all',
+                'cut_est': False,
+                'rebuild': True,
+                'button_dict': None
+            },
+
+            'menu:text:info_screen':{
+                'order': 4,
                 'draw': False,
                 'area': [],
                 'button_obj_list': [],
@@ -254,7 +270,7 @@ PANE_INIT_DICT = {
                 'button_dict': None
             },
             'menu:text:info_annotation':{
-                'order': 4,
+                'order': 5,
                 'draw': False,
                 'area': [],
                 'button_obj_list': [],
@@ -309,18 +325,15 @@ Bums = Bum()
 Farm_EUR = Farm(Worker, Pane_Map) #массив со зданиями
 
 #Текст. В работе.
-Txt_Resourses = Text(Font25, PANE_INIT_DICT['HEAD']['buttons_area']['resources']['button_obj_list'], screen)
-Txt_Info_Screen = Text(Font25, PANE_INIT_DICT['MENU']['buttons_area']['menu:text:info_screen']['area'], screen, page = 'info_screen', area = True)
-Txt_Info_Annotation = Text(Font25, PANE_INIT_DICT['MENU']['buttons_area']['menu:text:info_annotation']['area'], screen,  page = 'info_annotation', area = True, hyph = True)
-Txt_Shop_Annotation = Text(pygame.font.SysFont('Colibri', 20), PANE_INIT_DICT['MENU']['buttons_area']['menu:main']['area'], screen,  page = 'shop_annotation', area = True, hyph = True)
+Txt_Resourses = Text(Font25, {'obj_list': PANE_INIT_DICT['HEAD']['buttons_area']['resources']['button_obj_list'], 'text': Player.resources}, screen, Worker = Worker)
+Txt_Info_Screen = Text(Font25, PANE_INIT_DICT['MENU']['buttons_area']['menu:text:info_screen']['area'], screen, page = 'info_screen', area = True, Worker = Worker)
+Txt_Info_Annotation = Text(Font25, PANE_INIT_DICT['MENU']['buttons_area']['menu:text:info_annotation']['area'], screen,  page = 'info_annotation', area = True, hyph = True, Worker = Worker)
+Txt_Shop_Annotation = Text(pygame.font.SysFont('Colibri', 20), PANE_INIT_DICT['MENU']['buttons_area']['menu:main']['area'], screen,  page = 'shop_annotation', area = True, hyph = True, Worker = Worker)
 
-Txt_Info_Screen.Worker = Worker
-Txt_Info_Annotation.Worker = Worker
-Txt_Shop_Annotation.Worker = Worker
-
-
+Txt_Resourses_Annotation = Text(Font25, PANE_INIT_DICT['MENU']['buttons_area']['menu:text:resources']['area'], screen, page = 'res_annotation', area = True, Worker = Worker, hyph = True)
 
 
 # BUG: Записываем в некоторые объекты общие переменные. Кажется, это костыль.
 Pane_Map.screen = screen
 Farm_EUR.screen = screen
+Worker.user = Player

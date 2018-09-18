@@ -59,7 +59,7 @@ class BusStation():
                 },
             },
         }
-
+        '''
         self.info_screen = [
         {'display_name': 'Уровень: ',
         'attr': 'lvl'},
@@ -67,7 +67,7 @@ class BusStation():
         'attr': 'bums'},
         {'display_name': 'Предел бомжей: ',
         'attr': 'limit'},
-        ]
+        ]'''
 
     def tile_to_default(self):
         self.tile = [
@@ -84,7 +84,7 @@ class BusStation():
 
     def GrabBums(self, item_state):
         item_id = item_state['item_id']
-        self.user.resources['bums']['EUR'] += self.objects_dict[item_id]['bums']
+        self.user.resources['bums'] += self.objects_dict[item_id]['bums']
         self.objects_dict[item_id]['bums'] = 0
 
     def lvl(self, item_state):
@@ -139,6 +139,35 @@ class ShootingRange():
         'attr': 'cps'},
         ]
 
+        self.text_dict = {
+            'info_screen': {
+                'body': {
+                    'alignment': 'left',
+                    'text': ['Уровень: ', 'Прибыль: ']
+                },
+                'body_val': {
+                    'alignment': 'right',
+                    'attr': ['lvl', 'cps']
+                }
+            },
+            'info_annotation': {
+                'header': {
+                    'alignment': 'center',
+                    'text': 'Бомжетир'
+                },
+                'text': {
+                    'alignment': 'left',
+                    'text': ['Место потребления бомжей. Производим деньги, уменьшаем запас бомжей']
+                },
+            },
+            'shop_annotation': {
+                'text': {
+                    'alignment': 'left',
+                    'text': ['Короче, здесь запускаем в лес бомжей, а олигархи их отстреливают. Бомжей - меньше, олигархи - счатсливы и дают денег.']
+                },
+            },
+        }
+
     def tile_to_default(self):
         self.tile = [
         [1, 1, 1],
@@ -160,9 +189,9 @@ class ShootingRange():
     def resources_update(self):
         for ID in self.objects_dict:
             #По бомжам
-            if self.user.resources['bums']['EUR'] >= self.objects_dict[ID]['bps']:
+            if self.user.resources['bums'] >= self.objects_dict[ID]['bps']:
                 self.user.resources['coins'] += self.objects_dict[ID]['cps']
-                self.user.resources['bums']['EUR'] -= self.objects_dict[ID]['bps']
+                self.user.resources['bums'] -= self.objects_dict[ID]['bps']
 
                 #Сдвиг кадра в зависимости от наполнения
                 self.objects_dict[ID]['frame_start'] = 5
@@ -198,16 +227,33 @@ class Coins():
 class User():
     def __init__(self):
         self.resources = {
-        'total_bums': 7444443881,
-        'coins': 0,
-        'reputation': 0,
-        'bums': {
-            'EUR': 0,
-        },
+            'total_bums': 7444443881,
+            'coins': 0,
+            'reputation': 0,
+            'bums': 0,
+            'text_list': ['coins', 'bums', 'reputation', 'total_bums'],
         }
+
         self.property_list = {
             'EUR': [],
         }
+
+        self.text_dict = {
+            'res_annotation': {
+                'text': {
+                    'alignment': 'left',
+                    'text': []
+                },
+            },
+        }
+
+        self.texts = {
+        'coins': ['Собственно, честно заработанные деньги. Можно тратить ни на что. Они просто есть. А у бомжей нет. Ха-ха.'],
+        'bums': ['Это ваши честно заработанные бомжи. Можете распоряжаться ими, как обычными игровыми ресурсами. Вот типа есть мясо-золото-дерево, а это - бомжи.'],
+        'reputation': ['Репутация. Неизвестно, зачем она сейчас нужна. Просто есть, чего бы нет. Пусть и нулевая.'],
+        'total_bums': ['Население планеты, не являющееся бомжами. Задача - сделать бомжами всех. Для этого нужно много водки и автобусных остановок.'],
+        }
+
 
 #Просит все свои объекты посчитать поступления
     def resources_update(self):

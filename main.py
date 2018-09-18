@@ -89,16 +89,19 @@ while Worker.interface_state['continue_game']:
     #Text_Alert(alert, 25, win_size[1], Font25, screen)
 
     #Текст: Ресурсы
-    Txt_Resourses.draw([str(Player.resources['coins']), str(Player.resources['bums']['EUR']),str(Player.resources['reputation']),str(Player.resources['total_bums'])])
+    #[str(Player.resources['coins']), str(Player.resources['bums']['EUR']),str(Player.resources['reputation']),str(Player.resources['total_bums'])]
+    Txt_Resourses.draw()
 
     #if PANE_INIT_DICT['MENU']['buttons_area']['menu:building']['draw']:
         #Worker.text_info_screen(Txt_Info_Screen)
         #print (Worker.item_state['item'].annotation_dict)
     if PANE_INIT_DICT['MENU']['buttons_area']['menu:building']['draw']:
-        Txt_Info_Screen.draw_new()
-        Txt_Info_Annotation.draw_new()
+        Txt_Info_Screen.draw()
+        Txt_Info_Annotation.draw()
     elif PANE_INIT_DICT['MENU']['buttons_area']['menu:shop']['draw']:
-        Txt_Shop_Annotation.draw_new()
+        Txt_Shop_Annotation.draw()
+    elif PANE_INIT_DICT['MENU']['buttons_area']['menu:text:resources']['draw']:
+        Txt_Resourses_Annotation.draw()
 
     #print (Worker.interface_state['text_menu'])
 
