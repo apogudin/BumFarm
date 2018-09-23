@@ -6,11 +6,12 @@ class BusStation():
         self.user = user
         self.tile_to_default()
         self.objects_dict = {}
+        self.NxNy = [12,8]  #на сколько столбцов и строк резать изображение
         self.img = None
         self.lvl_list = [
-        {'lvl': 1, 'cost': 0, 'bums':0, 'limit': 10, 'bps': 0.3, 'bum_cash': 0, 'frame_start': 2},
-        {'lvl': 2, 'cost': 100, 'limit': 50, 'bps': 1},
-        {'lvl': 3, 'cost': 1000, 'limit': 100, 'bps': 5},
+        {'lvl': 1, 'cost': 0, 'bums':0, 'limit': 10, 'bps': 0.3, 'bum_cash': 0, 'draw_frame': 2, 'draw_col': 0},  #draw_col = номер группы из четырёх колонок для изменения изображения с уровнем
+        {'lvl': 2, 'cost': 100, 'limit': 50, 'bps': 1, 'draw_col': 1},
+        {'lvl': 3, 'cost': 1000, 'limit': 100, 'bps': 5, 'draw_col': 2},
         ]
         self.button_dict = [
             {
@@ -104,12 +105,7 @@ class BusStation():
                 self.user.resources['total_bums'] -= int(self.objects_dict[ID]['limit'] - self.objects_dict[ID]['bums'])
                 self.objects_dict[ID]['bums'] = self.objects_dict[ID]['limit']
 
-
-            #Сдвиг кадра в зависимости от наполнения
-            if self.objects_dict[ID]['bums'] / self.objects_dict[ID]['limit'] < 0.2:
-                self.objects_dict[ID]['frame_start'] = 2
-            else:
-                self.objects_dict[ID]['frame_start'] = 5
+            self.objects_dict[ID]['draw_frame'] = 2 + int(self.objects_dict[ID]['bums'] * 5 / self.objects_dict[ID]['limit'])
 
 
 #Потребитель бомжей, майнер денег
@@ -120,7 +116,7 @@ class ShootingRange():
         self.objects_dict = {}
         self.img = None
         self.lvl_list = [
-        {'lvl': 1, 'cost': 0, 'bums':0, 'cps': 10, 'bps': 3, 'frame_start': 2},
+        {'lvl': 1, 'cost': 0, 'bums':0, 'cps': 10, 'bps': 3, 'draw_frame': 2},
         {'lvl': 2, 'cost': 100, 'cps': 50, 'bps': 1},
         {'lvl': 3, 'cost': 1000, 'cps': 100, 'bps': 5},
         ]
@@ -194,10 +190,10 @@ class ShootingRange():
                 self.user.resources['bums'] -= self.objects_dict[ID]['bps']
 
                 #Сдвиг кадра в зависимости от наполнения
-                self.objects_dict[ID]['frame_start'] = 5
+                self.objects_dict[ID]['draw_frame'] = 5
 
             else:
-                self.objects_dict[ID]['frame_start'] = 2
+                self.objects_dict[ID]['draw_frame'] = 2
 
 
 

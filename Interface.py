@@ -110,7 +110,7 @@ class Map():
 class Farm():
     def __init__(self, worker, map):
         self.worker = worker
-        self.tile_info = [[{'obj': None, 'img': [], 'id': None, 'rotate': None} for i in range(map.NxNy[0])] for j in range (map.NxNy[1]) ]   #[объект, изображение, алиас, поворот?]
+        self.tile_info = [[{'obj': None, 'img_list': [], 'id': None, 'rotate': None} for i in range(map.NxNy[0])] for j in range (map.NxNy[1]) ]   #[объект, изображение, алиас, поворот?]
         self.pane_type = 'buildings'
         self.map = map
         map.Building = self
@@ -158,11 +158,17 @@ class Farm():
                 if obj.tile[j][i]:
                     self.tile_info[pos_row+j][pos_col+i]['obj'] = obj
                     self.tile_info[pos_row+j][pos_col+i]['id'] = item_id
-        self.tile_info[pos_row][pos_col]['img'].append(obj.img)
-        self.tile_info[pos_row][pos_col]['img_obj_bind'] = obj
-        self.tile_info[pos_row][pos_col]['img_obj_bind_id'] = item_id
-        #self.tile_info[pos_row][pos_col]['rotate'] = [3,self.worker.item_rotate]
-        self.tile_info[pos_row][pos_col]['rotate'] = self.worker.item_rotate
+
+        self.tile_info[pos_row][pos_col]['img_list'].append({
+            'img': obj.img,
+            'rotate': self.worker.item_rotate,
+            'img_obj_bind': obj,
+            'img_obj_bind_id': item_id,
+            'NxNy': obj.NxNy,
+        })
+        #self.tile_info[pos_row][pos_col]['img_obj_bind'] = obj
+        #self.tile_info[pos_row][pos_col]['img_obj_bind_id'] = item_id
+        #self.tile_info[pos_row][pos_col]['rotate'] = self.worker.item_rotate
         self.worker.item_rotate = 0
         self.worker.item_state['item'].tile_to_default()
 
@@ -181,25 +187,21 @@ class Farm():
         max_bldg_size = 2
         for j in range(self.map.NULL_tile_draw[1]-max_bldg_size, self.map.NULL_tile_draw[1]+self.map.tile_visible_NxNy[1]+1):
             for i in range(self.map.NULL_tile_draw[0]-max_bldg_size, self.map.NULL_tile_draw[0]+self.map.tile_visible_NxNy[0]+1):
-                if (i < self.map.NxNy[0] and j < self.map.NxNy[1]) and self.tile_info[j][i]['img'] is not None:
+                if (i < self.map.NxNy[0] and j < self.map.NxNy[1]) and len(self.tile_info[j][i]['img_list']):
                     pos_x = (i - self.map.NULL_tile_draw[0]) * self.map.tile_size + self.map.NULL_draw[0]
                     pos_y = (j - self.map.NULL_tile_draw[1]) * self.map.tile_size + self.map.NULL_draw[1]
-                    for image in self.tile_info[j][i]['img']:
-                        if 'img_obj_bind' in self.tile_info[j][i]:
-                            obj_frame_start_row = self.tile_info[j][i]['img_obj_bind'].objects_dict[self.tile_info[j][i]['img_obj_bind_id']]['frame_start']
-                            obj_lvl = self.tile_info[j][i]['img_obj_bind'].objects_dict[self.tile_info[j][i]['img_obj_bind_id']]['lvl']
-                            obj_rotate = self.tile_info[j][i]['rotate']
-                            image.draw(pos_x, pos_y, [12,8], [obj_frame_start_row + frame, obj_rotate + 4*(obj_lvl - 1)])
-                        # BUG: Временно оставлено - для рисования камней
-                        else:
-                            image.draw(pos_x, pos_y, [4,4], [0, self.tile_info[j][i]['rotate']])
+                    for image in self.tile_info[j][i]['img_list']:
+                        obj_draw_frame = image['img_obj_bind'].objects_dict[image['img_obj_bind_id']]['draw_frame']
+                        draw_col = image['img_obj_bind'].objects_dict[image['img_obj_bind_id']]['draw_col']
+                        obj_rotate = image['rotate']
+                        image['img'].draw(pos_x, pos_y, image['NxNy'], [obj_draw_frame, obj_rotate + 4*draw_col])
 
     def Activate(self, mouse_pos):
         pos = self.WhoIsOn(mouse_pos)
         obj = self.tile_info[pos[0]][pos[1]]['obj']
-        if obj == 'Stone':
-            pass
-        elif obj is not None:
+        #if obj == 'Stone':
+        #    pass
+        if (obj is not None) and obj.__class__.__name__ != 'Obstacle':
             self.worker.item_state['item'] = obj
             self.worker.item_state['item_id'] = self.tile_info[pos[0]][pos[1]]['id']
             self.worker.switch({'switch': ('MENU', 'menu:building')})
@@ -258,6 +260,7 @@ class Actor ():
             'continue_game': True,
         }
 
+    '''
     def text_info_screen(self, Txt_Obj):
         text_output = []
         item = self.item_state['item']
@@ -269,6 +272,7 @@ class Actor ():
             info_screen[i]['display_name'] + str(item_ID[info_screen[i]['attr']])
             )
         Txt_Obj.draw(text_output)
+    '''
 
     def switch(self, params):
         pane = params['switch'][0]
@@ -322,8 +326,6 @@ class Text():
         else:
             self.obj_list = input_list['obj_list']
             self.text_dict = input_list['text']
-
-
 
     def hyphenation(self, text_list, border):
         tmp_list = text_list[0].split()
@@ -463,67 +465,29 @@ class Text():
                 self.screen.blit(self.draw_text_list[i], self.draw_pos_list[i])
 
 
-
-    '''
-    def draw(self, text_list, event = None, duration = None):
-        text_list = [self.font.render(text, True, [0,0,0]) for text in text_list]
-        self.pos_list = []
-
-        if self.is_area:
-            interline = 1.5
-            area_w = self.area[1][0] - self.area[0][0]
-
-            max_w = 0
-            for text in text_list:
-                w = text.get_width()
-                if w > max_w:
-                    max_w = w
-            left_x = self.area[0][0] + (area_w/2 - max_w/2)
-
-            area_h = self.area[1][1] - self.area[0][1]
-            max_h = text_list[0].get_height()
-            dy = max_h * (interline + 1)
-            all_h = max_h + len(text_list) * dy
-            top_y = self.area[0][1] + (area_h - all_h) / 2
-
-            for i in range(len(text_list)):
-                self.pos_list.append([
-                left_x,
-                top_y + i * dy
-                ])
-
-            #return self.pos_list
-        else:
-            obj_pos_list = [obj.pos() for obj in self.obj_list]
-            obj_size_list = [obj.get_size() for obj in self.obj_list]
-
-            for i in range(len(text_list)):
-                self.pos_list.append([
-                    obj_pos_list[i][0] + (obj_size_list[i][0]/2 - text_list[i].get_width()/2),
-                    obj_pos_list[i][1] +(obj_size_list[i][1]/2 - text_list[i].get_height()/2)
-                    ])
-
-
-
-        for i in range(len(text_list)):
-            self.screen.blit(text_list[i], self.pos_list[i])
-    '''
-
-#Рандомайзер препятствий на карте
+#Рандомайзер одноклеточных препятствий на карте
 class Obstacle():
     def __init__(self, img, screen):
         self.img = img
         Image(img, [self], screen = screen)
-
+        self.objects_dict = {}
+        self.NxNy = [4,4]
 
     def rand_stones (self, tile_info, N):
         for i in range(N):
             R_row = random.randrange(0, 19, 1)
             R_column = random.randrange(0, 19, 1)
-            tile_info[R_row][R_column]['obj'] = 'Stone'
-            tile_info[R_row][R_column]['img'] = [self.img]
-            tile_info[R_row][R_column]['rotate'] = 0
 
+            item_id='r' + str(R_row) + 'c' + str(R_column)
+            self.objects_dict[item_id] = {'draw_frame': random.randrange(0, self.NxNy[0], 1), 'draw_col': 0}
+            tile_info[R_row][R_column]['obj'] = self
+            tile_info[R_row][R_column]['img_list'].append({
+                'img': self.img,
+                'rotate': random.randrange(0, self.NxNy[1], 1),
+                'img_obj_bind': self,
+                'img_obj_bind_id': item_id,
+                'NxNy': self.NxNy,
+            })
 
 #Записывает в кнопки окончательные координаты для рендеринга
 def coordinates_to_button (buttons_area, pane_button_group):
@@ -606,10 +570,6 @@ def create_buttons (buttons_area, pane_button_group, IMAGE_DICT):
         Image(buttons_area[pane_button_group]['button_image'], buttons_area[pane_button_group]['button_obj_list'], screen = buttons_area[pane_button_group]['screen'])
 
     coordinates_to_button(buttons_area, pane_button_group)
-
-    #BUTTON_DICT[pane_button_group] = buttons_area[pane_button_group]['button_obj_list']
-    #if 'static' not in buttons_area[pane_button_group] or buttons_area[pane_button_group]['static']:
-    #    BUTTON_DRAW_GROUPS['static'].append(buttons_area[pane_button_group]['button_obj_list'])
 
     return buttons_area[pane_button_group]['button_obj_list']
 

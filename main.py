@@ -91,7 +91,6 @@ while Worker.interface_state['continue_game']:
     #Текст: Ресурсы
     #[str(Player.resources['coins']), str(Player.resources['bums']['EUR']),str(Player.resources['reputation']),str(Player.resources['total_bums'])]
     Txt_Resourses.draw()
-
     #if PANE_INIT_DICT['MENU']['buttons_area']['menu:building']['draw']:
         #Worker.text_info_screen(Txt_Info_Screen)
         #print (Worker.item_state['item'].annotation_dict)
