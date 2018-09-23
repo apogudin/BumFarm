@@ -258,6 +258,7 @@ class Actor ():
             'map_mode': 'base',
             'constructing_mode': False,
             'continue_game': True,
+            'news_event': None,
         }
 
     '''
@@ -309,8 +310,8 @@ class Actor ():
 
 class Text():
     def __init__(self, font, input_list, screen, page = None, area = False, hyph = False, static = False, Worker = None):
-        #либо указываем напрямую список позиций pos_list,
-        #либо передаём список объектов и указываем их тип (для типов тут прописаны специфики расположения)
+        #Либо указываем area, которая заполнится текстом из Worker.item_state['item'].text_dict[self.page]
+        #Либо указываем {'obj_list': [], 'text': []} - заливаем текст в центр area объекта
         self.Worker = Worker
         self.hyph = hyph
         self.font = font
@@ -448,7 +449,6 @@ class Text():
 
         return text_list, pos_list
 
-
     def draw (self):
         #Если текст статичный, то используем один раз заготовленные списки, а не делаем их заново
         if self.static:
@@ -463,6 +463,71 @@ class Text():
             self.draw_text_list, self.draw_pos_list = self.draw_new()
             for i in range(len(self.draw_text_list)):
                 self.screen.blit(self.draw_text_list[i], self.draw_pos_list[i])
+
+
+class News_Line():
+    def __init__(self, area, font, screen, Worker):
+        self.news_dict = {
+            'event1': ['Вы заработали много денег', 'Вы заработали ещё больше денег', 'Вы невероятно богаты'],
+            'event2': ['У вас очень много бомжей', 'Вы обомжевали весь мир'],
+            'event3': ['Народ охренел от вас', 'Все вами недовольны', 'Вы террорист вас ненавидят'],
+        }
+        #self.queue_text = []
+        self.Worker = Worker
+        self.text_in_drawing = None
+        self.text_len = 0
+        self.text_area_y_center = area[0][1] + (area[1][1] - area[0][1])/2
+        self.area_x_right = area[1][0]
+        self.area_x_left = area[0][0]
+        self.font = font
+        self.speed = 5
+        self.screen = screen
+        self.queue_event = []
+
+    def queue_jobs(self):
+        event = self.queue_event.pop(0)
+
+        if len(self.news_dict[event]):
+            self.text_in_drawing = self.news_dict[event].pop(0)
+        else:
+            return 'No texts'
+
+        self.text_in_drawing = self.font.render(self.text_in_drawing, True, [0,0,0])
+        self.pos_y = self.text_area_y_center - self.text_in_drawing.get_height()/2
+        self.text_len = self.text_in_drawing.get_width()
+        self.pos_x = self.area_x_right
+        self.pos_x_end = self.area_x_left - self.text_len
+        return
+
+    def get_event_and_draw(self):
+        #берем новый, если тот кончился
+        if self.Worker.interface_state['news_event'] is not None and len(self.news_dict[self.Worker.interface_state['news_event']]):
+
+            self.queue_event.append(self.Worker.interface_state['news_event'])
+            self.Worker.interface_state['news_event'] = None
+
+        #если есть новый ивент - в очередь
+        #рисуем текущие
+
+        if self.text_in_drawing is None:
+            if not len(self.queue_event):
+                return
+            if self.queue_jobs() == 'No texts':
+                return
+
+
+        self.pos_x -= self.speed
+        if self.pos_x > self.pos_x_end:
+            self.screen.blit(self.text_in_drawing, [self.pos_x, self.pos_y])
+        else:
+            self.text_in_drawing = None
+            #очищаем джобы
+
+
+
+
+
+#евент в джобы - и на отпску
 
 
 #Рандомайзер одноклеточных препятствий на карте

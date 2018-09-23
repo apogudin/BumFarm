@@ -222,13 +222,18 @@ class Coins():
 #Игровой процесс пользователя
 class User():
     def __init__(self):
+        self.population = 7444443881
         self.resources = {
-            'total_bums': 7444443881,
+            'total_bums': self.population,
             'coins': 0,
             'reputation': 0,
             'bums': 0,
             'text_list': ['coins', 'bums', 'reputation', 'total_bums'],
         }
+
+        self.sum_coins = 0
+        self.sum_bums_news_step = 10
+        self.sum_coins_news_step = 10
 
         self.property_list = {
             'EUR': [],
@@ -250,6 +255,13 @@ class User():
         'total_bums': ['Население планеты, не являющееся бомжами. Задача - сделать бомжами всех. Для этого нужно много водки и автобусных остановок.'],
         }
 
+    def get_news(self):
+        if self.population - self.resources['total_bums'] > self.sum_bums_news_step:
+            self.Worker.interface_state['news_event'] = 'event2'
+            self.sum_bums_news_step += 50
+        if self.sum_coins > self.sum_coins_news_step:
+            self.Worker.interface_state['news_event'] = 'event1'
+            self.sum_coins_news_step += 50
 
 #Просит все свои объекты посчитать поступления
     def resources_update(self):

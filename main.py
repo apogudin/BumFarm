@@ -32,7 +32,12 @@ while Worker.interface_state['continue_game']:
                         if Worker.item_state['item'].objects_dict[Worker.item_state['item_id']]['lvl'] >= len( Worker.item_state['item'].lvl_list):
                             PANE_INIT_DICT['MENU']['buttons_area']['menu:building']['button_dict'] = Worker.item_state['item'].button_dict_limited
                             create_buttons(PANE_INIT_DICT['MENU']['buttons_area'], 'menu:building', IMAGE_DICT)
-
+            elif keys[pygame.K_1]:
+                Worker.interface_state['news_event'] = 'event1'
+            elif keys[pygame.K_2]:
+                Worker.interface_state['news_event'] = 'event2'
+            elif keys[pygame.K_3]:
+                Worker.interface_state['news_event'] = 'event3'
         #Режим строительства
         else:
             if event.type == pygame.MOUSEMOTION:
@@ -60,8 +65,8 @@ while Worker.interface_state['continue_game']:
             fps = 0
 
             #Budget.income(Bums.amount*10)
-#        if event.type == Alert_Event:
-#            alert = ''
+        if event.type == Timer10Sec:
+            Worker.interface_state['news_event'] = 'event3'
 
     #Отрисовка карты
     Pane_Map.draw(frame)
@@ -102,7 +107,13 @@ while Worker.interface_state['continue_game']:
     elif PANE_INIT_DICT['MENU']['buttons_area']['menu:text:resources']['draw']:
         Txt_Resourses_Annotation.draw()
 
+
+
+    Player.get_news()
+    Txt_News.get_event_and_draw()
+
     #print (Worker.interface_state['text_menu'])
+    #print(Worker.interface_state['news_event'])
 
 
     pygame.display.flip()

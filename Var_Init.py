@@ -15,8 +15,10 @@ Font12 = pygame.font.SysFont('Colibri', 12)
 #Время
 clock = pygame.time.Clock()
 Timer1Sec = pygame.USEREVENT+1
+Timer10Sec = pygame.USEREVENT+3
 Alert_Event = pygame.USEREVENT+2
 pygame.time.set_timer(Timer1Sec, 1000)
+pygame.time.set_timer(Timer10Sec, 10000)
 #Окно
 screen = pygame.display.set_mode(win_size)
 pygame.display.set_caption('Бомжеферма')
@@ -332,8 +334,10 @@ Txt_Shop_Annotation = Text(pygame.font.SysFont('Colibri', 20), PANE_INIT_DICT['M
 
 Txt_Resourses_Annotation = Text(Font25, PANE_INIT_DICT['MENU']['buttons_area']['menu:text:resources']['area'], screen, page = 'res_annotation', area = True, Worker = Worker, hyph = True)
 
+Txt_News = News_Line(PANE_INIT_DICT['NEWS']['area'], pygame.font.SysFont('Colibri', 25), screen, Worker)
 
 # BUG: Записываем в некоторые объекты общие переменные. Кажется, это костыль.
 Pane_Map.screen = screen
 Farm_EUR.screen = screen
 Worker.user = Player
+Player.Worker = Worker
