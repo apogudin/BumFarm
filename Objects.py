@@ -255,12 +255,14 @@ class User():
         'total_bums': ['Население планеты, не являющееся бомжами. Задача - сделать бомжами всех. Для этого нужно много водки и автобусных остановок.'],
         }
 
-    def get_news(self):
+    def get_news(self, news_obj):
         if self.population - self.resources['total_bums'] > self.sum_bums_news_step:
-            self.Worker.interface_state['news_event'] = 'event2'
+            news_obj.add_jobs('event2')
+            #self.Worker.interface_state['news_event'] = 'event2'
             self.sum_bums_news_step += 50
         if self.sum_coins > self.sum_coins_news_step:
-            self.Worker.interface_state['news_event'] = 'event1'
+            #self.Worker.interface_state['news_event'] = 'event1'
+            news_obj.add_jobs('event1')
             self.sum_coins_news_step += 50
 
 #Просит все свои объекты посчитать поступления

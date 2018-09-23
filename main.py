@@ -64,9 +64,9 @@ while Worker.interface_state['continue_game']:
             print (fps)
             fps = 0
 
-            #Budget.income(Bums.amount*10)
+        #Новостная лента, не зависящая от процесса игры
         if event.type == Timer10Sec:
-            Worker.interface_state['news_event'] = 'event3'
+            Txt_News.add_jobs('event3')
 
     #Отрисовка карты
     Pane_Map.draw(frame)
@@ -90,15 +90,8 @@ while Worker.interface_state['continue_game']:
                 for button in PANE_INIT_DICT[pane]['buttons_area'][button_area]['button_obj_list']:
                     if PANE_INIT_DICT[pane]['buttons_area'][button_area]['draw']:
                         button.draw()
-    #Текст: Алерты
-    #Text_Alert(alert, 25, win_size[1], Font25, screen)
 
-    #Текст: Ресурсы
-    #[str(Player.resources['coins']), str(Player.resources['bums']['EUR']),str(Player.resources['reputation']),str(Player.resources['total_bums'])]
     Txt_Resourses.draw()
-    #if PANE_INIT_DICT['MENU']['buttons_area']['menu:building']['draw']:
-        #Worker.text_info_screen(Txt_Info_Screen)
-        #print (Worker.item_state['item'].annotation_dict)
     if PANE_INIT_DICT['MENU']['buttons_area']['menu:building']['draw']:
         Txt_Info_Screen.draw()
         Txt_Info_Annotation.draw()
@@ -107,14 +100,9 @@ while Worker.interface_state['continue_game']:
     elif PANE_INIT_DICT['MENU']['buttons_area']['menu:text:resources']['draw']:
         Txt_Resourses_Annotation.draw()
 
-
-
-    Player.get_news()
+    #Новостная лента согласно игровым событиям
+    Player.get_news(Txt_News)
     Txt_News.get_event_and_draw()
-
-    #print (Worker.interface_state['text_menu'])
-    #print(Worker.interface_state['news_event'])
-
 
     pygame.display.flip()
 

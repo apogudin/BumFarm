@@ -258,7 +258,6 @@ class Actor ():
             'map_mode': 'base',
             'constructing_mode': False,
             'continue_game': True,
-            'news_event': None,
         }
 
     '''
@@ -487,10 +486,10 @@ class News_Line():
     def queue_jobs(self):
         event = self.queue_event.pop(0)
 
-        if len(self.news_dict[event]):
-            self.text_in_drawing = self.news_dict[event].pop(0)
-        else:
-            return 'No texts'
+        #if len(self.news_dict[event]):
+        self.text_in_drawing = self.news_dict[event].pop(0)
+        #else:
+        #    return 'No texts'
 
         self.text_in_drawing = self.font.render(self.text_in_drawing, True, [0,0,0])
         self.pos_y = self.text_area_y_center - self.text_in_drawing.get_height()/2
@@ -499,21 +498,22 @@ class News_Line():
         self.pos_x_end = self.area_x_left - self.text_len
         return
 
+    def add_jobs(self, event):
+        if self.queue_event.count(event) < len(self.news_dict[event]):
+            self.queue_event.append(event)
+
     def get_event_and_draw(self):
         #берем новый, если тот кончился
-        if self.Worker.interface_state['news_event'] is not None and len(self.news_dict[self.Worker.interface_state['news_event']]):
-
-            self.queue_event.append(self.Worker.interface_state['news_event'])
-            self.Worker.interface_state['news_event'] = None
-
-        #если есть новый ивент - в очередь
-        #рисуем текущие
+        #if self.Worker.interface_state['news_event'] is not None and len(self.news_dict[self.Worker.interface_state['news_event']]):
+        #    self.queue_event.append(self.Worker.interface_state['news_event'])
+        #    self.Worker.interface_state['news_event'] = None
 
         if self.text_in_drawing is None:
             if not len(self.queue_event):
                 return
-            if self.queue_jobs() == 'No texts':
-                return
+            self.queue_jobs()
+            #if self.queue_jobs() == 'No texts':
+            #    return
 
 
         self.pos_x -= self.speed
